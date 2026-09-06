@@ -483,7 +483,7 @@ footer { border-top: 1px solid var(--border); padding: 48px 32px; text-align: ce
     <span class="hero-badge-dot"></span>
     12 AI Agent Tiers Available
   </div>
-  <h1 id="hero-heading" onclick="handleHeroTap(event)">
+  <h1 id="hero-heading">
     Deploy <span class="hero-highlight">Intelligent Agents</span> That Work For You
   </h1>
   <p>Build your AI workforce in days, not months. From smart chatbots to fully autonomous platforms — WebKrafta deploys custom-trained agents that automate operations, delight customers, and accelerate your growth 24/7.</p>
@@ -690,8 +690,7 @@ footer { border-top: 1px solid var(--border); padding: 48px 32px; text-align: ce
     <a id="wa-support-link" href="#" target="_blank">WhatsApp Support</a>
   </div>
   <div class="footer-copy">
-    &copy; 2025 WebKrafta. All rights reserved. &nbsp;·&nbsp;
-    <a onclick="openPin()">Admin</a>
+    &copy; 2025 WebKrafta. All rights reserved.
   </div>
 </footer>
 
@@ -773,7 +772,7 @@ footer { border-top: 1px solid var(--border); padding: 48px 32px; text-align: ce
     <!-- BOOKINGS TAB -->
     <div class="ceo-tab-content active" id="ceo-tab-bookings">
       <div class="ceo-note" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-        <span>☁️ <strong>LIVE DATA from Supabase</strong> — Every customer booking from mobile/desktop appears here instantly. Tap Refresh to reload.</span>
+        <span>☁️ <strong>UNIFIED BOOKINGS</strong> — All customer appointments from Mobile + Desktop are synced here via Supabase. Every booking is stored in the cloud database and visible only in this admin panel.</span>
         <button onclick="renderBookingsList()" style="padding:7px 16px;border-radius:8px;background:linear-gradient(135deg,var(--violet),var(--cyan));border:none;color:#fff;font-family:var(--font-body);font-size:13px;font-weight:700;cursor:pointer;">⟳ Refresh</button>
       </div>
       <div id="bookings-list"></div>
@@ -1040,7 +1039,7 @@ CREATE POLICY "allow_all_settings" ON webkrafta_settings
 ═══════════════════════════════════════════════════════ */
 // ⚠️ INSTRUCTION: Go to Supabase Dashboard → Project Settings → API → Copy 'anon public' key
 // Replace the text below between the quotes with your real key (starts with eyJ...)
-const DEFAULT_SUPA_URL = 'https://hsrpfrhzkrlugvpngjsl.supabase.co';
+const DEFAULT_SUPA_URL = 'https://hsrpfrhzkrlugvpngjsl.supabase.co'; // Your Supabase project URL
 const DEFAULT_SUPA_ANON = 'YOUR_SUPABASE_ANON_KEY_HERE';
 
 let supaClient = null;
@@ -1771,11 +1770,11 @@ async function submitBooking() {
   if(waOn && waNum) {
     const waMsg = `Hello WebKrafta Team! 👋\n\n🔔 NEW BOOKING REQUEST\n\n👤 Name: ${name}\n🏢 Business: ${biz}\n📱 Phone: ${phone}\n📧 Email: ${email||'Not provided'}\n📦 Plan: ${planText}\n💰 Setup: ${setupFee}\n\n💬 Message:\n${message||'Ready to get started!'}\n\n— Sent from WebKrafta website`;
     window.open(`https://wa.me/91${waNum}?text=${encodeURIComponent(waMsg)}`,'_blank');
-    showToast('✅ Booking saved & WhatsApp opened!');
+    showToast('✅ Booking saved to Supabase cloud & WhatsApp opened!');
   } else if(waOn && !waNum) {
     showToast('⚠️ Booking saved but WhatsApp number not configured in admin!', true);
   } else {
-    showToast('✅ Booking saved to database!');
+    showToast('✅ Booking saved to Supabase cloud database!');
   }
 
   closeBooking();
@@ -1822,6 +1821,7 @@ function updateWaModeUI() {
    PIN & CEO DASHBOARD
 ═══════════════════════════════════════════════════════ */
 function openPin() {
+  if(isMobileDevice()){alert('❌ Admin access is restricted to laptop/desktop on authorized network.');return;}
   const ov=document.getElementById('pin-overlay');
   ov.style.display='flex'; setTimeout(()=>{ov.classList.add('active');document.getElementById('pin-input').focus();},10);
 }
@@ -1833,6 +1833,13 @@ function closePin() {
 }
 function closePinOnOverlay(e){if(e.target===document.getElementById('pin-overlay'))closePin();}
 async function verifyPin() {
+  // BLOCK MOBILE COMPLETELY
+  if (isMobileDevice()) {
+    alert('❌ Admin panel is not accessible on mobile devices. Please use a laptop/desktop on the authorized network (10.221.115.x).');
+    closePin();
+    return;
+  }
+
   const pin = document.getElementById('pin-input').value.trim();
   const pinToCheck = adminPinFromSupabase || getCeoPin();
 
@@ -1868,6 +1875,7 @@ async function verifyPin() {
   showToast('⚡ CEO dashboard unlocked');
 }
 function openCeoDash() {
+  if(isMobileDevice()){alert('❌ Admin panel is desktop-only.');return;}
   renderAgentControls(); renderSettingsTab();
   switchCeoTab('bookings', document.querySelector('.ceo-tab'));
   const ov=document.getElementById('ceo-overlay');
@@ -2601,6 +2609,7 @@ function showToast(msg,isError=false){
 ═══════════════════════════════════════════════════════ */
 let keyBuf='',keyBufTimer=null;
 document.addEventListener('keydown',e=>{
+  if(isMobileDevice())return; // NO admin keyboard access on mobile
   if(document.activeElement.tagName==='INPUT'||document.activeElement.tagName==='TEXTAREA'||document.activeElement.isContentEditable)return;
   if(document.getElementById('ceo-overlay').classList.contains('active'))return;
   if(e.key==='Escape'){
@@ -2620,10 +2629,10 @@ document.addEventListener('keydown',e=>{
 /* Mobile hero tap (10 taps) */
 let heroTapCount=0,heroTapTimer=null;
 function handleHeroTap(e){
-  if(!(window.innerWidth<=768||'ontouchstart' in window))return;
-  heroTapCount++;clearTimeout(heroTapTimer);
-  if(heroTapCount>=10){heroTapCount=0;openPin();return;}
-  heroTapTimer=setTimeout(()=>{heroTapCount=0;},3000);
+  // Admin trigger completely removed for mobile
+  // Mobile users cannot access admin panel by any means
+  heroTapCount=0;
+  return;
 }
 
 /* Parallax */
@@ -2644,6 +2653,11 @@ if(wheelStage)wheelStage.addEventListener('click',toggleWheelSpin);
 
 /* Utility */
 function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function isMobileDevice() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768 || ('ontouchstart' in window && window.innerWidth <= 1024);
+}
+function isDesktopDevice() { return !isMobileDevice(); }
+
 
 /* ═══════════════════════════════════════════════════════
    INIT

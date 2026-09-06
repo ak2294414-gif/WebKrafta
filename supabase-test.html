@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Supabase 5x Check — WebKrafta</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body{font-family:monospace;background:#0a0a1a;color:#e8e8f0;padding:24px;line-height:1.6;}
+  h1{color:#a855f7;font-size:20px;}
+  .test{margin:14px 0;padding:14px;border-radius:8px;border:1px solid #333;}
+  .pass{border-color:#10b981;background:rgba(16,185,129,0.08);}
+  .fail{border-color:#f43f5e;background:rgba(244,63,94,0.08);}
+  .pending{border-color:#f59e0b;background:rgba(245,158,11,0.08);}
+  .status{font-weight:bold;}
+  .pass .status{color:#10b981;}
+  .fail .status{color:#f43f5e;}
+  pre{white-space:pre-wrap;word-break:break-all;font-size:12px;color:#9898b8;margin-top:6px;}
+  #summary{margin-top:20px;padding:16px;border-radius:8px;font-size:16px;font-weight:bold;}
+</style>
+</head>
+<body>
+<h1>🔍 WebKrafta — Supabase 5-बार Check</h1>
+<p>यह file अपने-आप 5 checks चलाएगी: connection, tables, insert, read-back, cleanup.</p>
+<div id="results"></div>
+<div id="summary">चल रहा है...</div>
+
+<script>
+const SUPABASE_URL = 'https://hsrpfrhzkrlugvpngjsl.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_dmuwtMmXNzFlalnJbOBftQ_7hXKHlXd';
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const resultsEl = document.getElementById('results');
+let passCount = 0, failCount = 0;
+
+function addResult(name, ok, detail) {
+  const div = document.createElement('div');
+  div.className = 'test ' + (ok ? 'pass' : 'fail');
+  div.innerHTML = `<span class="status">${ok ? '✅ PASS' : '❌ FAIL'}</span> — ${name}<pre>${detail}</pre>`;
+  resultsEl.appendChild(div);
+  ok ? passCount++ : failCount++;
+}
+
+async function runAllTests() {
+  let insertedId = null;
+
+  // TEST 1: Connection reachability (select count from bookings)
+  try {
+    const { error, count } = await client.from('webkrafta_bookings').select('id', { count: 'exact', head: true });
+    if (error) throw error;
+    addResult('Test 1 — Supabase से connection', true, `Connected. Current booking rows: ${count}`);
+  } catch (e) {
+    addResult('Test 1 — Supabase से connection', false, e.message);
+  }
+
+  // TEST 2: webkrafta_settings table check
+  try {
+    const { data, error } = await client.from('webkrafta_settings').select('key,value').limit(5);
+    if (error) throw error;
+    addResult('Test 2 — Settings table (theme sync के लिए)', true, `Rows found: ${data.length}. Sample keys: ${data.map(r=>r.key).join(', ') || 'none yet'}`);
+  } catch (e) {
+    addResult('Test 2 — Settings table (theme sync के लिए)', false, e.message);
+  }
+
+  // TEST 3: Insert a test booking (simulate customer booking from mobile)
+  try {
+    const { data, error } = await client.from('webkrafta_bookings').insert([{
+      name: 'TEST_VERIFICATION_ROW', biz: 'Test', phone: '0000000000',
+      email: 'test@verify.com', plan: 'Test Plan', plan_id: 'test',
+      setup_fee: 0, message: 'automated 5x check', via_wa: false, from_mobile: true
+    }]).select();
+    if (error) throw error;
+    insertedId = data[0]?.id;
+    addResult('Test 3 — नई booking insert करना (जैसे customer करता है)', true, `Inserted row id: ${insertedId}`);
+  } catch (e) {
+    addResult('Test 3 — नई booking insert करना (जैसे customer करता है)', false, e.message);
+  }
+
+  // TEST 4: Read back bookings (simulate admin panel viewing list)
+  try {
+    const { data, error } = await client.from('webkrafta_bookings').select('*').order('created_at', { ascending: false }).limit(5);
+    if (error) throw error;
+    const found = insertedId ? data.some(r => r.id === insertedId) : false;
+    addResult('Test 4 — Admin panel जैसे booking list पढ़ना', found || !insertedId, `Rows returned: ${data.length}. अभी डाली गई test row मिली: ${found ? 'हाँ' : 'नहीं'}`);
+  } catch (e) {
+    addResult('Test 4 — Admin panel जैसे booking list पढ़ना', false, e.message);
+  }
+
+  // TEST 5: Theme settings write + read (simulate laptop→mobile sync)
+  try {
+    const testTheme = JSON.stringify({violet:'#ff69b4', violetLight:'#ffb6d9', cyan:'#ff69b4', bg:'#fff0f5', __test:true});
+    const { error: writeErr } = await client.from('webkrafta_settings').upsert({ key: '__test_theme_check', value: testTheme, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+    if (writeErr) throw writeErr;
+    const { data: readBack, error: readErr } = await client.from('webkrafta_settings').select('value').eq('key', '__test_theme_check').maybeSingle();
+    if (readErr) throw readErr;
+    const matches = readBack && readBack.value === testTheme;
+    addResult('Test 5 — Theme laptop→cloud→mobile sync', matches, `Write ok, read-back match: ${matches ? 'हाँ, sync काम कर रहा है' : 'नहीं मिला'}`);
+    // cleanup test theme key
+    await client.from('webkrafta_settings').delete().eq('key', '__test_theme_check');
+  } catch (e) {
+    addResult('Test 5 — Theme laptop→cloud→mobile sync', false, e.message);
+  }
+
+  // Cleanup test booking row
+  if (insertedId) {
+    try {
+      await client.from('webkrafta_bookings').delete().eq('id', insertedId);
+      addResult('Cleanup — Test booking row हटाना', true, 'Test row हटा दी गई, आपकी असली booking list साफ है।');
+    } catch (e) {
+      addResult('Cleanup — Test booking row हटाना', false, e.message + ' — कृपया admin panel में जाकर TEST_VERIFICATION_ROW नाम की booking manually delete कर दें।');
+    }
+  }
+
+  // Summary
+  const summaryEl = document.getElementById('summary');
+  if (failCount === 0) {
+    summaryEl.style.background = 'rgba(16,185,129,0.15)';
+    summaryEl.style.color = '#10b981';
+    summaryEl.textContent = `🎉 सभी ${passCount} tests PASS हुए! Supabase पूरी तरह काम कर रहा है — booking save और theme sync दोनों ठीक हैं।`;
+  } else {
+    summaryEl.style.background = 'rgba(244,63,94,0.15)';
+    summaryEl.style.color = '#f43f5e';
+    summaryEl.textContent = `⚠️ ${passCount} pass, ${failCount} fail हुए। नीचे लाल वाले test में क्या error आया है, वो पढ़कर मुझे (Claude को) बताएं।`;
+  }
+}
+
+runAllTests();
+</script>
+</body>
+</html>

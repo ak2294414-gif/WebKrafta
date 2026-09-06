@@ -1212,35 +1212,90 @@ function initSupabase() {
   }
 }
 
+
 /* ═══════════════════════════════════════════════════════
-   REALTIME — push theme/settings to ALL open browsers instantly
-   (no refresh needed, works for 1000s of concurrent visitors)
+   REALTIME + POLLING FALLBACK
+   Realtime: instant (0ms) via Supabase postgres_changes
+   Fallback: polling every 8s if Realtime unavailable
+   Both methods ensure ALL visitors see color changes live
 ═══════════════════════════════════════════════════════ */
 let realtimeChannel = null;
-function subscribeRealtimeSettings() {
-  if (!supaClient) return;
-  if (realtimeChannel) { try { supaClient.removeChannel(realtimeChannel); } catch(e){} }
-  realtimeChannel = supaClient
-    .channel('webkrafta_settings_live')
-    .on('postgres_changes',
-      { event: '*', schema: 'public', table: 'webkrafta_settings' },
-      (payload) => {
-        const row = payload.new && payload.new.key ? payload.new : null;
-        if (!row) return;
-        try {
-          if (row.key === 'wk_theme_desktop') { localStorage.setItem('wk_theme_desktop', row.value); if(!isMobileDevice()) applyTheme(); }
-          if (row.key === 'wk_theme_mobile')  { localStorage.setItem('wk_theme_mobile', row.value);  if(isMobileDevice())  applyTheme(); }
-          if (row.key === 'wk_wa_mode')    { localStorage.setItem('wk_wa_mode', row.value); updateWaModeUI(); }
-          if (row.key === 'wk_wa_number')  { localStorage.setItem('wk_wa_number', row.value); }
-          if (row.key === 'wk_hero_text')  { localStorage.setItem('wk_hero_text', row.value); applyHeroText(); }
-          if (row.key === 'wk_banner')     { localStorage.setItem('wk_banner', row.value); renderBanner(); }
-          if (row.key === 'wk_founder')    { localStorage.setItem('wk_founder', row.value); renderFounder(); }
-          if (row.key === 'wk_logo')       { localStorage.setItem('wk_logo', row.value); applyLogo(); }
-        } catch(e) { console.warn('Realtime apply error:', e); }
-      }
-    )
-    .subscribe();
+let realtimeOk = false;
+let pollTimer = null;
+
+function applySettingRow(k, v) {
+  if (!k || v === undefined) return;
+  try {
+    if (k === 'wk_theme_desktop') {
+      localStorage.setItem(k, v);
+      if (!isMobileDevice()) applyTheme();
+    }
+    if (k === 'wk_theme_mobile') {
+      localStorage.setItem(k, v);
+      if (isMobileDevice()) applyTheme();
+    }
+    if (k === 'wk_wa_mode')   { localStorage.setItem(k, v); updateWaModeUI(); }
+    if (k === 'wk_wa_number') { localStorage.setItem(k, v); }
+    if (k === 'wk_hero_text') { localStorage.setItem(k, v); applyHeroText(); }
+    if (k === 'wk_banner')    { localStorage.setItem(k, v); renderBanner(); }
+    if (k === 'wk_founder')   { localStorage.setItem(k, v); renderFounder(); }
+    if (k === 'wk_logo')      { localStorage.setItem(k, v); applyLogo(); }
+    if (k === 'wk_agent_vis') { localStorage.setItem(k, v); buildCarousel(); buildAgentList(); }
+    if (k === 'wk_prices')    { localStorage.setItem(k, v); buildAgentList(); }
+  } catch(e) { console.warn('applySettingRow error:', e); }
 }
+
+async function pollThemeFromSupabase() {
+  if (!supaClient) return;
+  try {
+    const { data, error } = await supaClient
+      .from('webkrafta_settings')
+      .select('key,value');
+    if (error || !data) return;
+    data.forEach(row => applySettingRow(row.key, row.value));
+  } catch(e) {}
+}
+
+function startPollingFallback() {
+  if (pollTimer) return;
+  pollThemeFromSupabase(); // immediate
+  pollTimer = setInterval(pollThemeFromSupabase, 8000);
+}
+
+function stopPollingFallback() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+function subscribeRealtimeSettings() {
+  if (!supaClient) { startPollingFallback(); return; }
+  try {
+    if (realtimeChannel) { try { supaClient.removeChannel(realtimeChannel); } catch(e){} }
+    realtimeChannel = supaClient
+      .channel('wk_live_' + Math.random().toString(36).slice(2, 8))
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'webkrafta_settings' },
+        (payload) => {
+          realtimeOk = true;
+          const row = payload.new;
+          if (row && row.key) applySettingRow(row.key, row.value);
+        }
+      )
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          realtimeOk = true;
+          stopPollingFallback(); // Realtime works — no need to poll
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          realtimeOk = false;
+          startPollingFallback(); // Realtime failed — use polling
+        }
+      });
+    // Safety net: if no SUBSCRIBED within 6s, start polling
+    setTimeout(() => { if (!realtimeOk) startPollingFallback(); }, 6000);
+  } catch(e) {
+    startPollingFallback();
+  }
+}
+
 
 function setSupaStatus(state, text) {
   supaConnected = (state === 'connected');

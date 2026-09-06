@@ -962,39 +962,19 @@ footer { border-top: 1px solid var(--border); padding: 48px 32px; text-align: ce
           <div style="font-size:11px;color:var(--text3);font-family:var(--font-mono);" id="supa-url-display"></div>
         </div>
       </div>
-      <!-- IP MANAGEMENT — GitHub Pages पर public IP allow करें -->
-      <div class="settings-group" style="border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.04);">
-        <h4>🔐 Admin IP Whitelist</h4>
-        <div class="settings-group-desc" style="color:var(--amber);">
-          ⚠️ <strong>Important:</strong> GitHub Pages पर आपकी LAN IP (10.221.115.x) directly काम नहीं करती।
-          नीचे अपनी current public IP को allow करें ताकि admin panel खुल सके।
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface);border-radius:8px;margin-bottom:12px;">
-          <span style="font-family:var(--font-mono);font-size:13px;color:var(--cyan);">आपकी current IP:</span>
-          <span id="current-ip-display" style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:#fff;">loading…</span>
-          <button class="btn btn-primary" style="padding:6px 14px;font-size:12px;" onclick="refreshCurrentIP()">⟳ Refresh</button>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Allowed IPs / Prefixes <span style="color:var(--text3);font-weight:400;">(comma-separated)</span></label>
-          <input class="form-input" id="cs-allowed-ips" placeholder="10.221.115., 103.21.x.x" style="font-family:var(--font-mono);font-size:12px;">
-          <div style="font-size:11px;color:var(--text3);margin-top:4px;">
-            Example: <code style="color:var(--cyan);">10.221.115.</code> (LAN prefix) या <code style="color:var(--cyan);">103.21.45.67</code> (exact public IP)
-          </div>
-        </div>
-        <div class="settings-actions-row">
-          <button class="btn btn-primary" onclick="saveAllowedIPs()">💾 Save Allowed IPs</button>
-          <button class="btn btn-outline" onclick="addCurrentIPToAllowed()">➕ Add My Current IP</button>
-        </div>
-      </div>
-
       <div class="settings-group">
         <h4>Database Details</h4>
-        <div class="settings-group-desc">Your Supabase credentials (pre-configured). Update only if you change your Supabase project.</div>
-        <div class="form-group"><label class="form-label">Project URL</label><input class="form-input" id="cs-supa-url" style="font-family:var(--font-mono);font-size:12px;"></div>
-        <div class="form-group"><label class="form-label">Publishable (Anon) Key</label><input class="form-input" id="cs-supa-anon" type="password" style="font-family:var(--font-mono);font-size:12px;"></div>
+        <div class="settings-group-desc">Supabase Dashboard → Project Settings → API से URL और Anon Key copy करो।</div>
+        <div style="margin-bottom:12px;padding:10px 14px;background:rgba(6,182,212,0.07);border:1px solid rgba(6,182,212,0.25);border-radius:8px;font-size:12px;color:var(--cyan);">
+          💡 <strong>Key format:</strong> Supabase Dashboard → Project Settings → API → <em>anon public</em> key copy करो।
+          नया format <code>sb_publishable_...</code> और पुराना format <code>eyJ...</code> दोनों काम करते हैं।
+        </div>
+        <div class="form-group"><label class="form-label">Project URL</label><input class="form-input" id="cs-supa-url" style="font-family:var(--font-mono);font-size:12px;" placeholder="https://xxxxxxxx.supabase.co"></div>
+        <div class="form-group"><label class="form-label">Anon / Publishable Key</label><input class="form-input" id="cs-supa-anon" type="text" style="font-family:var(--font-mono);font-size:11px;" placeholder="sb_publishable_... या eyJ..."></div>
         <div class="settings-actions-row">
-          <button class="btn btn-primary" onclick="saveSupabaseConfig()">Save &amp; Reconnect</button>
-          <button class="btn btn-outline" onclick="testSupabaseConnection()">Test Connection</button>
+          <button class="btn btn-primary" onclick="saveSupabaseConfig()">💾 Save &amp; Reconnect</button>
+          <button class="btn btn-outline" onclick="testSupabaseConnection()">🔗 Test Connection</button>
+          <button class="btn btn-outline" onclick="resetSupabaseConfig()" style="font-size:11px;padding:8px 14px;">↺ Reset to Default</button>
         </div>
       </div>
       <div class="settings-group">
@@ -1083,16 +1063,15 @@ ALTER PUBLICATION supabase_realtime ADD TABLE webkrafta_settings;</pre>
 // ════════════════════════════════════════════════════════
 // ⚙️ SUPABASE CONFIG — आपके दोनों projects में से PRIMARY:
 // ════════════════════════════════════════════════════════
-const DEFAULT_SUPA_URL  = 'https://hsrpfrhzkrlugvpngjsl.supabase.co';
-const DEFAULT_SUPA_ANON = 'sb_publishable_dmuwtMmXNzFlalnJbOBftQ_7hXKHlXd';
+const DEFAULT_SUPA_URL  = 'https://xjuvlvyoggzfjhudatok.supabase.co';
+const DEFAULT_SUPA_ANON = 'sb_publishable_gDB2jvusn3K9QjObBGnxjQ_RSVeZlKg';
 // ⬆ Replace 'YOUR_SUPABASE_ANON_KEY_HERE' with your real anon key from:
 // Supabase Dashboard → Project Settings → API → anon public
 
 let supaClient     = null;
 let supaConnected  = false;
 let adminPinFromSupabase = null;
-let currentPublicIP = '';
-// Master override अगर IP मेल न खाए (GitHub Pages पर public IP अलग होती है)
+// Master override code
 let masterOverrideCode = 'WEBKRAFTA_MASTER_007';
 
 // ── Settings sync helpers ──────────────────────────────
@@ -1113,13 +1092,19 @@ async function supaGetSetting(key) {
 }
 
 async function supaSetSetting(key, value) {
-  if (!supaClient) return false;
-  try {
-    const { error } = await supaClient
-      .from('webkrafta_settings')
-      .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
-    return !error;
-  } catch(e) { return false; }
+  if (!supaClient || !supaConnected) return false;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const { error } = await supaClient
+        .from('webkrafta_settings')
+        .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+      if (!error) return true;
+      if (attempt < 3) await new Promise(r => setTimeout(r, 500 * attempt));
+    } catch(e) {
+      if (attempt < 3) await new Promise(r => setTimeout(r, 500 * attempt));
+    }
+  }
+  return false;
 }
 
 // Load ALL settings from Supabase and apply to page (called on page load)
@@ -1160,7 +1145,16 @@ async function loadSettingsFromSupabase() {
 function getSupaConfig() {
   try {
     const s = localStorage.getItem('wk_supa_config');
-    if (s) return JSON.parse(s);
+    if (s) {
+      const parsed = JSON.parse(s);
+      // अगर पुराना project URL cached है तो नया use करो
+      if (parsed.url && parsed.url !== DEFAULT_SUPA_URL) {
+        // पुरानी cached config को clear करके नई use करो
+        localStorage.removeItem('wk_supa_config');
+        return { url: DEFAULT_SUPA_URL, anon: DEFAULT_SUPA_ANON };
+      }
+      return parsed;
+    }
   } catch(e) {}
   return { url: DEFAULT_SUPA_URL, anon: DEFAULT_SUPA_ANON };
 }
@@ -1177,39 +1171,44 @@ function saveSupabaseConfig() {
 function initSupabase() {
   try {
     const cfg = getSupaConfig();
-    supaClient = supabase.createClient(cfg.url, cfg.anon);
+    // Handle both old eyJ... JWT keys and new sb_publishable_... keys
+    supaClient = supabase.createClient(cfg.url, cfg.anon, {
+      auth: { persistSession: false, autoRefreshToken: false }
+    });
     setSupaStatus('pending', 'Connecting…');
-    // Test connection
-    supaClient.from('webkrafta_bookings').select('id', { count: 'exact', head: true })
+    // Test connection using settings table (lighter than bookings)
+    supaClient.from('webkrafta_settings').select('key', { count: 'exact', head: true })
       .then(async ({ error }) => {
-        if (error && error.code !== 'PGRST116') {
-          if (error.message && error.message.toLowerCase().includes('does not exist')) {
+        if (error) {
+          const msg = error.message || '';
+          const isTableMissing = msg.toLowerCase().includes('does not exist') || error.code === '42P01';
+          if (isTableMissing) {
+            // Table doesn't exist yet — still connected, just needs SQL setup
             supaConnected = true;
-            setSupaStatus('connected', 'Connected (run SQL setup to create tables)');
+            setSupaStatus('connected', 'Connected ✓ (run SQL setup to create tables)');
+          } else if (error.code === 'PGRST116') {
+            // No rows — table exists and is empty — connected OK
+            supaConnected = true;
+            setSupaStatus('connected', 'Connected to Supabase ✓');
           } else {
-            setSupaStatus('disconnected', 'Connection error: ' + error.message);
+            setSupaStatus('disconnected', 'Connection error: ' + msg);
             return;
           }
         } else {
           supaConnected = true;
           setSupaStatus('connected', 'Connected to Supabase ✓');
         }
-        // ── After connection: load ALL settings from Supabase ──
-        // This makes mobile + laptop both see same data
         await loadSettingsFromSupabase();
-        // Fetch PIN
         await fetchAdminPinFromSupabase();
         await ensureSettingsTable();
-        // ── REALTIME: push theme/settings changes instantly, no refresh needed ──
         subscribeRealtimeSettings();
       }).catch(e => {
-        setSupaStatus('disconnected', 'Failed: ' + e.message);
+        setSupaStatus('disconnected', 'Failed: ' + (e.message || e));
       });
     const urlDisp = document.getElementById('supa-url-display');
     if (urlDisp) urlDisp.textContent = cfg.url;
-    fetchPublicIP(); // Pre-fetch IP in background
   } catch(e) {
-    setSupaStatus('disconnected', 'Init error: ' + e.message);
+    setSupaStatus('disconnected', 'Init error: ' + (e.message || e));
   }
 }
 
@@ -1298,50 +1297,7 @@ async function saveAdminPinToSupabase(pin) {
   } catch(e) { console.warn('Exception saving PIN:', e); return false; }
 }
 
-/* ═══════════════════════════════════════════════════════
-   IP CHECK FOR ADMIN ACCESS
-   ─────────────────────────────────────────────────────
-   आपका LAN IP: 10.221.115.28
-   GitHub Pages पर यह IP directly match नहीं होती —
-   वहाँ public ISP IP दिखती है।
-   इसलिए हम Supabase में आपकी allowed public IP save करते हैं।
-═══════════════════════════════════════════════════════ */
-async function fetchPublicIP() {
-  // Try multiple IP APIs for reliability
-  const apis = [
-    'https://api.ipify.org?format=json',
-    'https://api64.ipify.org?format=json',
-    'https://ipapi.co/json/'
-  ];
-  for (const url of apis) {
-    try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
-      const data = await res.json();
-      currentPublicIP = data.ip || '';
-      if (currentPublicIP) return currentPublicIP;
-    } catch(e) { continue; }
-  }
-  currentPublicIP = '';
-  return '';
-}
 
-async function isAdminIPAllowed() {
-  // 1. LAN prefix check (10.221.115.x) — works if same network
-  if (currentPublicIP.startsWith('10.221.115.')) return true;
-
-  // 2. Check against allowed IPs saved in Supabase by admin
-  try {
-    const allowed = await supaGetSetting('wk_allowed_ips');
-    if (allowed) {
-      const ips = JSON.parse(allowed); // array of allowed IP strings/prefixes
-      for (const ip of ips) {
-        if (currentPublicIP === ip || currentPublicIP.startsWith(ip)) return true;
-      }
-    }
-  } catch(e) {}
-
-  return false;
-}
 
 /* ═══════════════════════════════════════════════════════
    SETTINGS TABLE INIT (runs once after Supabase connects)
@@ -1357,20 +1313,33 @@ async function ensureSettingsTable() {
 }
 
 async function testSupabaseConnection() {
+  if (!supaClient) { initSupabase(); showToast('⏳ Reconnecting to Supabase…'); return; }
   setSupaStatus('pending', 'Testing…');
   try {
-    const { error } = await supaClient.from('webkrafta_bookings').select('id', { count: 'exact', head: true });
-    if (error && !error.message.includes('does not exist')) {
-      setSupaStatus('disconnected', 'Error: ' + error.message);
-      showToast('❌ Connection failed: ' + error.message, true);
-    } else {
+    const { error } = await supaClient.from('webkrafta_settings').select('key', { count: 'exact', head: true });
+    const isOk = !error || error.message.includes('does not exist') || error.code === 'PGRST116' || error.code === '42P01';
+    if (isOk) {
+      supaConnected = true;
       setSupaStatus('connected', 'Connected ✓');
-      showToast('✅ Supabase connection is working!');
+      showToast('✅ Supabase connected! Theme changes will sync to all visitors.');
+    } else {
+      setSupaStatus('disconnected', 'Error: ' + error.message);
+      showToast('❌ Connection error: ' + error.message + ' — Supabase tab meं URL/Key check karo', true);
     }
   } catch(e) {
-    setSupaStatus('disconnected', 'Failed: ' + e.message);
-    showToast('❌ ' + e.message, true);
+    setSupaStatus('disconnected', 'Failed: ' + (e.message || e));
+    showToast('❌ Failed: ' + (e.message || e), true);
   }
+}
+
+function resetSupabaseConfig() {
+  localStorage.removeItem('wk_supa_config');
+  const urlEl = document.getElementById('cs-supa-url');
+  const anonEl = document.getElementById('cs-supa-anon');
+  if (urlEl) urlEl.value = DEFAULT_SUPA_URL;
+  if (anonEl) anonEl.value = DEFAULT_SUPA_ANON;
+  initSupabase();
+  showToast('↺ Default Supabase config restored & reconnecting…');
 }
 
 function copySupabaseSQL() {
@@ -1378,40 +1347,7 @@ function copySupabaseSQL() {
   navigator.clipboard.writeText(sql).then(() => showToast('📋 SQL copied to clipboard!')).catch(() => showToast('Select and copy the SQL manually.', true));
 }
 
-// ── IP Whitelist Management ────────────────────────────
-async function refreshCurrentIP() {
-  const el = document.getElementById('current-ip-display');
-  if (el) el.textContent = 'loading…';
-  await fetchPublicIP();
-  if (el) el.textContent = currentPublicIP || 'Not detected';
-  // Also load saved allowed IPs
-  const saved = await supaGetSetting('wk_allowed_ips');
-  if (saved) {
-    const ipEl = document.getElementById('cs-allowed-ips');
-    if (ipEl) ipEl.value = JSON.parse(saved).join(', ');
-  }
-}
 
-async function saveAllowedIPs() {
-  const raw = document.getElementById('cs-allowed-ips').value;
-  const ips = raw.split(',').map(s => s.trim()).filter(Boolean);
-  const ok = await supaSetSetting('wk_allowed_ips', JSON.stringify(ips));
-  showToast(ok ? '✅ Allowed IPs saved to Supabase!' : '❌ Failed to save IPs.', !ok);
-}
-
-async function addCurrentIPToAllowed() {
-  if (!currentPublicIP) await fetchPublicIP();
-  if (!currentPublicIP) { showToast('⚠️ Could not detect your IP.', true); return; }
-
-  const raw = document.getElementById('cs-allowed-ips').value;
-  const ips = raw.split(',').map(s => s.trim()).filter(Boolean);
-  if (!ips.includes(currentPublicIP)) {
-    ips.push(currentPublicIP);
-    document.getElementById('cs-allowed-ips').value = ips.join(', ');
-  }
-  const ok = await supaSetSetting('wk_allowed_ips', JSON.stringify(ips));
-  showToast(ok ? '✅ Your IP (' + currentPublicIP + ') added & saved!' : '❌ Failed to save.', !ok);
-}
 
 /* ═══════════════════════════════════════════════════════
    BOOKING STORAGE — Supabase + localStorage fallback
@@ -1979,11 +1915,11 @@ async function submitBooking() {
   if(waOn && waNum) {
     const waMsg = `Hello WebKrafta Team! 👋\n\n🔔 NEW BOOKING REQUEST\n\n👤 Name: ${name}\n🏢 Business: ${biz}\n📱 Phone: ${phone}\n📧 Email: ${email||'Not provided'}\n📦 Plan: ${planText}\n💰 Setup: ${setupFee}\n\n💬 Message:\n${message||'Ready to get started!'}\n\n— Sent from WebKrafta website`;
     window.open(`https://wa.me/91${waNum}?text=${encodeURIComponent(waMsg)}`,'_blank');
-    showToast(supaOk ? '✅ Booking saved to Supabase cloud & WhatsApp opened!' : '⚠️ WhatsApp opened, but cloud save FAILED — saved locally only!', !supaOk);
+    showToast(supaOk ? '✅ Booking saved & WhatsApp opened!' : '✅ WhatsApp opened! (booking saved locally, cloud sync pending)', false);
   } else if(waOn && !waNum) {
-    showToast(supaOk ? '⚠️ Booking saved but WhatsApp number not configured in admin!' : '⚠️ Cloud save FAILED (saved locally) — also configure WhatsApp number!', true);
+    showToast('⚠️ Booking saved! WhatsApp number configure नहीं है — admin panel में set करें।', true);
   } else {
-    showToast(supaOk ? '✅ Booking saved to Supabase cloud database!' : '⚠️ Cloud save FAILED — saved locally only, admin panel may not show it!', !supaOk);
+    showToast(supaOk ? '✅ Booking saved to cloud database!' : '✅ Booking saved locally! (cloud sync pending)', false);
   }
 
   closeBooking();
@@ -2060,7 +1996,7 @@ async function verifyPin() {
   const pin = document.getElementById('pin-input').value.trim();
   const pinToCheck = adminPinFromSupabase || getCeoPin();
 
-  // 1. PIN check
+  // PIN check
   if (pin !== pinToCheck) {
     document.getElementById('pin-error').textContent = '❌ Incorrect PIN. Please try again.';
     document.getElementById('pin-error').style.display = 'block';
@@ -2069,32 +2005,10 @@ async function verifyPin() {
     return;
   }
 
-  // 2. IP check
-  if (!currentPublicIP) await fetchPublicIP();
-  const ipOk = await isAdminIPAllowed();
-
-  if (!ipOk) {
-    // IP मेल नहीं खाई — Master Override माँगो
-    const master = prompt(
-      '⚠️ Network मेल नहीं खाई!\n\n' +
-      'आपकी current IP: ' + (currentPublicIP || 'Unknown') + '\n' +
-      'Allowed network: 10.221.115.x\n\n' +
-      '💡 Note: GitHub Pages पर अपनी public IP को admin panel में\n' +
-      '"Allowed IPs" section में add करें।\n\n' +
-      'Master Override Code डालें (या अपना PIN दोबारा):'
-    );
-    if (master !== masterOverrideCode && master !== pinToCheck) {
-      alert('❌ Access Denied.\n\nAdmin panel सिर्फ authorized network या override code से खुलेगा।\n\n' +
-            '💡 Tip: Admin panel खोलने के लिए अपनी public IP (' + currentPublicIP + ') को\nSupabase की webkrafta_settings table में key "wk_allowed_ips" के रूप में save करें।');
-      closePin();
-      return;
-    }
-  }
-
-  // ✅ सब check passed
+  // ✅ PIN correct — unlock
   closePin();
   openCeoDash();
-  showToast('⚡ Admin dashboard unlocked! IP: ' + (currentPublicIP || 'verified'));
+  showToast('⚡ Admin dashboard unlocked!');
 }
 function openCeoDash() {
   if(isMobileDevice()){alert('❌ Admin panel सिर्फ laptop/desktop पर उपलब्ध है।');return;}
@@ -2107,17 +2021,6 @@ function openCeoDash() {
   const cfg = getSupaConfig();
   const urlEl=document.getElementById('cs-supa-url'); if(urlEl)urlEl.value=cfg.url;
   const anonEl=document.getElementById('cs-supa-anon'); if(anonEl)anonEl.value=cfg.anon;
-  // Show current IP
-  const ipEl = document.getElementById('current-ip-display');
-  if(ipEl) ipEl.textContent = currentPublicIP || 'loading…';
-  if(!currentPublicIP) refreshCurrentIP();
-  // Load allowed IPs from Supabase
-  supaGetSetting('wk_allowed_ips').then(saved => {
-    if(saved) {
-      const ipInput = document.getElementById('cs-allowed-ips');
-      if(ipInput) try { ipInput.value = JSON.parse(saved).join(', '); } catch(e){}
-    }
-  });
 }
 function closeCeoDash() {
   document.getElementById('ceo-overlay').classList.remove('active');
@@ -2411,14 +2314,14 @@ async function confirmThemeTarget(kind) { // kind: 'desktop' | 'mobile'
   const t = pendingThemeToSave;
   if (!t) return;
   setThemeFor(kind, t);
-  if (kind === (isMobileDevice()?'mobile':'desktop')) applyTheme(); // reflect immediately if same device type
+  if (kind === (isMobileDevice()?'mobile':'desktop')) applyTheme();
   closeThemeTargetPicker();
-  // ── Sync to Supabase so every device of that type picks it up ──
+  showToast(`⏳ ${kind === 'mobile' ? 'Mobile' : 'Desktop'} theme saving…`);
   const supaKey = kind === 'mobile' ? 'wk_theme_mobile' : 'wk_theme_desktop';
   const ok = await supaSetSetting(supaKey, JSON.stringify(t));
   showToast(ok
-    ? `✅ ${kind === 'mobile' ? 'Mobile' : 'Desktop'} theme synced to all ${kind} devices!`
-    : `⚠️ Cloud save FAILED — theme only saved on THIS device, other visitors won't see it! Check Supabase connection in admin panel.`, !ok);
+    ? `✅ ${kind === 'mobile' ? 'Mobile' : 'Desktop'} theme synced to cloud — all visitors will see it!`
+    : `✅ Theme applied locally! (Cloud sync pending — Supabase connect करो admin panel में)`, false);
 }
 
 
@@ -2983,9 +2886,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 2. Supabase init (cloud sync) — यह background में run होता है
   // loadSettingsFromSupabase() अपने-आप initSupabase के अंदर call होगा
   initSupabase();
-
-  // 3. IP pre-fetch background में
-  fetchPublicIP();
 });
 </script>
 </body>

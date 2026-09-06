@@ -962,6 +962,31 @@ footer { border-top: 1px solid var(--border); padding: 48px 32px; text-align: ce
           <div style="font-size:11px;color:var(--text3);font-family:var(--font-mono);" id="supa-url-display"></div>
         </div>
       </div>
+      <!-- IP MANAGEMENT — GitHub Pages पर public IP allow करें -->
+      <div class="settings-group" style="border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.04);">
+        <h4>🔐 Admin IP Whitelist</h4>
+        <div class="settings-group-desc" style="color:var(--amber);">
+          ⚠️ <strong>Important:</strong> GitHub Pages पर आपकी LAN IP (10.221.115.x) directly काम नहीं करती।
+          नीचे अपनी current public IP को allow करें ताकि admin panel खुल सके।
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface);border-radius:8px;margin-bottom:12px;">
+          <span style="font-family:var(--font-mono);font-size:13px;color:var(--cyan);">आपकी current IP:</span>
+          <span id="current-ip-display" style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:#fff;">loading…</span>
+          <button class="btn btn-primary" style="padding:6px 14px;font-size:12px;" onclick="refreshCurrentIP()">⟳ Refresh</button>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Allowed IPs / Prefixes <span style="color:var(--text3);font-weight:400;">(comma-separated)</span></label>
+          <input class="form-input" id="cs-allowed-ips" placeholder="10.221.115., 103.21.x.x" style="font-family:var(--font-mono);font-size:12px;">
+          <div style="font-size:11px;color:var(--text3);margin-top:4px;">
+            Example: <code style="color:var(--cyan);">10.221.115.</code> (LAN prefix) या <code style="color:var(--cyan);">103.21.45.67</code> (exact public IP)
+          </div>
+        </div>
+        <div class="settings-actions-row">
+          <button class="btn btn-primary" onclick="saveAllowedIPs()">💾 Save Allowed IPs</button>
+          <button class="btn btn-outline" onclick="addCurrentIPToAllowed()">➕ Add My Current IP</button>
+        </div>
+      </div>
+
       <div class="settings-group">
         <h4>Database Details</h4>
         <div class="settings-group-desc">Your Supabase credentials (pre-configured). Update only if you change your Supabase project.</div>
@@ -1039,14 +1064,81 @@ CREATE POLICY "allow_all_settings" ON webkrafta_settings
 ═══════════════════════════════════════════════════════ */
 // ⚠️ INSTRUCTION: Go to Supabase Dashboard → Project Settings → API → Copy 'anon public' key
 // Replace the text below between the quotes with your real key (starts with eyJ...)
-const DEFAULT_SUPA_URL = 'https://hsrpfrhzkrlugvpngjsl.supabase.co'; // Your Supabase project URL
+// ════════════════════════════════════════════════════════
+// ⚙️ SUPABASE CONFIG — आपके दोनों projects में से PRIMARY:
+// ════════════════════════════════════════════════════════
+const DEFAULT_SUPA_URL  = 'https://hsrpfrhzkrlugvpngjsl.supabase.co';
 const DEFAULT_SUPA_ANON = 'YOUR_SUPABASE_ANON_KEY_HERE';
+// ⬆ Replace 'YOUR_SUPABASE_ANON_KEY_HERE' with your real anon key from:
+// Supabase Dashboard → Project Settings → API → anon public
 
-let supaClient = null;
-let supaConnected = false;
-let adminPinFromSupabase = null;   // PIN fetched from Supabase
-let currentPublicIP = '';          // For IP check
-let masterOverrideCode = 'WEBKRAFTA_MASTER_007'; // Second secret if IP fails
+let supaClient     = null;
+let supaConnected  = false;
+let adminPinFromSupabase = null;
+let currentPublicIP = '';
+// Master override अगर IP मेल न खाए (GitHub Pages पर public IP अलग होती है)
+let masterOverrideCode = 'WEBKRAFTA_MASTER_007';
+
+// ── Settings sync helpers ──────────────────────────────
+// Supabase-first: सभी settings cloud में save होती हैं ताकि
+// laptop + mobile दोनों में एक ही data दिखे।
+
+async function supaGetSetting(key) {
+  if (!supaClient) return null;
+  try {
+    const { data, error } = await supaClient
+      .from('webkrafta_settings')
+      .select('value')
+      .eq('key', key)
+      .maybeSingle();
+    if (error || !data) return null;
+    return data.value;
+  } catch(e) { return null; }
+}
+
+async function supaSetSetting(key, value) {
+  if (!supaClient) return false;
+  try {
+    const { error } = await supaClient
+      .from('webkrafta_settings')
+      .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+    return !error;
+  } catch(e) { return false; }
+}
+
+// Load ALL settings from Supabase and apply to page (called on page load)
+async function loadSettingsFromSupabase() {
+  if (!supaClient) return;
+  try {
+    const { data, error } = await supaClient
+      .from('webkrafta_settings')
+      .select('key,value');
+    if (error || !data) return;
+    const map = {};
+    data.forEach(row => { map[row.key] = row.value; });
+
+    // Apply each setting locally so page reflects cloud state
+    if (map['wk_theme'])      { try { localStorage.setItem('wk_theme', map['wk_theme']); } catch(e){} }
+    if (map['wk_wa_mode'])    { try { localStorage.setItem('wk_wa_mode', map['wk_wa_mode']); } catch(e){} }
+    if (map['wk_wa_number'])  { try { localStorage.setItem('wk_wa_number', map['wk_wa_number']); } catch(e){} }
+    if (map['wk_hero_text'])  { try { localStorage.setItem('wk_hero_text', map['wk_hero_text']); } catch(e){} }
+    if (map['wk_banner'])     { try { localStorage.setItem('wk_banner', map['wk_banner']); } catch(e){} }
+    if (map['wk_founder'])    { try { localStorage.setItem('wk_founder', map['wk_founder']); } catch(e){} }
+    if (map['wk_anim_mode'])  { try { localStorage.setItem('wk_anim_mode', map['wk_anim_mode']); } catch(e){} }
+    if (map['wk_agent_vis'])  { try { localStorage.setItem('wk_agent_vis', map['wk_agent_vis']); } catch(e){} }
+    if (map['wk_prices'])     { try { localStorage.setItem('wk_prices', map['wk_prices']); } catch(e){} }
+    if (map['wk_logo'])       { try { localStorage.setItem('wk_logo', map['wk_logo']); } catch(e){} }
+    if (map['admin_pin'])     { adminPinFromSupabase = map['admin_pin']; try { localStorage.setItem('wk_ceo_pin', map['admin_pin']); } catch(e){} }
+
+    // Re-apply all visual changes after loading
+    applyTheme();
+    applyLogo();
+    applyHeroText();
+    renderFounder();
+    renderBanner();
+    updateWaModeUI();
+  } catch(e) { console.warn('loadSettingsFromSupabase error:', e); }
+}
 
 function getSupaConfig() {
   try {
@@ -1070,33 +1162,33 @@ function initSupabase() {
     const cfg = getSupaConfig();
     supaClient = supabase.createClient(cfg.url, cfg.anon);
     setSupaStatus('pending', 'Connecting…');
-    // Test with a lightweight query
+    // Test connection
     supaClient.from('webkrafta_bookings').select('id', { count: 'exact', head: true })
-      .then(({ error }) => {
+      .then(async ({ error }) => {
         if (error && error.code !== 'PGRST116') {
-          // PGRST116 = table doesn't exist yet — connection still works
           if (error.message && error.message.toLowerCase().includes('does not exist')) {
-            setSupaStatus('connected', 'Connected (table not yet created — run SQL setup)');
+            supaConnected = true;
+            setSupaStatus('connected', 'Connected (run SQL setup to create tables)');
           } else {
             setSupaStatus('disconnected', 'Connection error: ' + error.message);
+            return;
           }
         } else {
           supaConnected = true;
           setSupaStatus('connected', 'Connected to Supabase ✓');
         }
+        // ── After connection: load ALL settings from Supabase ──
+        // This makes mobile + laptop both see same data
+        await loadSettingsFromSupabase();
+        // Fetch PIN
+        await fetchAdminPinFromSupabase();
+        await ensureSettingsTable();
       }).catch(e => {
         setSupaStatus('disconnected', 'Failed: ' + e.message);
       });
-    document.getElementById('supa-url-display').textContent = cfg.url;
-    // After connection, fetch admin PIN from Supabase
-    fetchPublicIP().then(() => {
-      fetchAdminPinFromSupabase().then(pin => {
-        if (!pin) {
-          // If no PIN in Supabase yet, push the current local one
-          ensureSettingsTable();
-        }
-      });
-    });
+    const urlDisp = document.getElementById('supa-url-display');
+    if (urlDisp) urlDisp.textContent = cfg.url;
+    fetchPublicIP(); // Pre-fetch IP in background
   } catch(e) {
     setSupaStatus('disconnected', 'Init error: ' + e.message);
   }
@@ -1159,24 +1251,47 @@ async function saveAdminPinToSupabase(pin) {
 
 /* ═══════════════════════════════════════════════════════
    IP CHECK FOR ADMIN ACCESS
+   ─────────────────────────────────────────────────────
+   आपका LAN IP: 10.221.115.28
+   GitHub Pages पर यह IP directly match नहीं होती —
+   वहाँ public ISP IP दिखती है।
+   इसलिए हम Supabase में आपकी allowed public IP save करते हैं।
 ═══════════════════════════════════════════════════════ */
 async function fetchPublicIP() {
-  try {
-    const res = await fetch('https://api.ipify.org?format=json');
-    const data = await res.json();
-    currentPublicIP = data.ip || '';
-    return currentPublicIP;
-  } catch(e) {
-    currentPublicIP = '';
-    return '';
+  // Try multiple IP APIs for reliability
+  const apis = [
+    'https://api.ipify.org?format=json',
+    'https://api64.ipify.org?format=json',
+    'https://ipapi.co/json/'
+  ];
+  for (const url of apis) {
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
+      const data = await res.json();
+      currentPublicIP = data.ip || '';
+      if (currentPublicIP) return currentPublicIP;
+    } catch(e) { continue; }
   }
+  currentPublicIP = '';
+  return '';
 }
-function isAdminIPAllowed() {
-  // You requested 10.221.115.x check
-  // NOTE: GitHub Pages sees your PUBLIC IP, not your WiFi IP (10.221.115.x).
-  // This check will only pass if your PUBLIC IP also starts with 10.221.115 (rare).
-  // That's why we added the master override code as backup.
-  return currentPublicIP.startsWith('10.221.115.');
+
+async function isAdminIPAllowed() {
+  // 1. LAN prefix check (10.221.115.x) — works if same network
+  if (currentPublicIP.startsWith('10.221.115.')) return true;
+
+  // 2. Check against allowed IPs saved in Supabase by admin
+  try {
+    const allowed = await supaGetSetting('wk_allowed_ips');
+    if (allowed) {
+      const ips = JSON.parse(allowed); // array of allowed IP strings/prefixes
+      for (const ip of ips) {
+        if (currentPublicIP === ip || currentPublicIP.startsWith(ip)) return true;
+      }
+    }
+  } catch(e) {}
+
+  return false;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -1212,6 +1327,41 @@ async function testSupabaseConnection() {
 function copySupabaseSQL() {
   const sql = document.querySelector('pre').textContent;
   navigator.clipboard.writeText(sql).then(() => showToast('📋 SQL copied to clipboard!')).catch(() => showToast('Select and copy the SQL manually.', true));
+}
+
+// ── IP Whitelist Management ────────────────────────────
+async function refreshCurrentIP() {
+  const el = document.getElementById('current-ip-display');
+  if (el) el.textContent = 'loading…';
+  await fetchPublicIP();
+  if (el) el.textContent = currentPublicIP || 'Not detected';
+  // Also load saved allowed IPs
+  const saved = await supaGetSetting('wk_allowed_ips');
+  if (saved) {
+    const ipEl = document.getElementById('cs-allowed-ips');
+    if (ipEl) ipEl.value = JSON.parse(saved).join(', ');
+  }
+}
+
+async function saveAllowedIPs() {
+  const raw = document.getElementById('cs-allowed-ips').value;
+  const ips = raw.split(',').map(s => s.trim()).filter(Boolean);
+  const ok = await supaSetSetting('wk_allowed_ips', JSON.stringify(ips));
+  showToast(ok ? '✅ Allowed IPs saved to Supabase!' : '❌ Failed to save IPs.', !ok);
+}
+
+async function addCurrentIPToAllowed() {
+  if (!currentPublicIP) await fetchPublicIP();
+  if (!currentPublicIP) { showToast('⚠️ Could not detect your IP.', true); return; }
+
+  const raw = document.getElementById('cs-allowed-ips').value;
+  const ips = raw.split(',').map(s => s.trim()).filter(Boolean);
+  if (!ips.includes(currentPublicIP)) {
+    ips.push(currentPublicIP);
+    document.getElementById('cs-allowed-ips').value = ips.join(', ');
+  }
+  const ok = await supaSetSetting('wk_allowed_ips', JSON.stringify(ips));
+  showToast(ok ? '✅ Your IP (' + currentPublicIP + ') added & saved!' : '❌ Failed to save.', !ok);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -1466,11 +1616,21 @@ function getVisibility() {
   try { const s = localStorage.getItem('wk_agent_vis'); if (s) return JSON.parse(s); } catch(e) {}
   const d = {}; AGENTS.forEach(a => d[a.id] = true); return d;
 }
-function setVisibility(v) { localStorage.setItem('wk_agent_vis', JSON.stringify(v)); }
+function setVisibility(v) {
+  const str = JSON.stringify(v);
+  localStorage.setItem('wk_agent_vis', str);
+  // Sync to Supabase so mobile sees same agent list
+  supaSetSetting('wk_agent_vis', str);
+}
 function getActiveAgents() { const v = getVisibility(); return AGENTS.filter(a => v[a.id] !== false); }
 
 function getPriceOverrides() { try { const s = localStorage.getItem('wk_prices'); if (s) return JSON.parse(s); } catch(e) {} return {}; }
-function setPriceOverrides(o) { localStorage.setItem('wk_prices', JSON.stringify(o)); }
+function setPriceOverrides(o) {
+  const str = JSON.stringify(o);
+  localStorage.setItem('wk_prices', str);
+  // Sync to Supabase
+  supaSetSetting('wk_prices', str);
+}
 function getAgentPrice(agent) { const o = getPriceOverrides()[agent.id]; return { setup: (o&&o.setup)||agent.setup, monthly: (o&&o.monthly)||agent.monthly }; }
 function setAgentPrice(id, setup, monthly) { const o = getPriceOverrides(); o[id] = {setup,monthly}; setPriceOverrides(o); }
 function resetAgentPrice(id) { const o = getPriceOverrides(); delete o[id]; setPriceOverrides(o); }
@@ -1786,16 +1946,24 @@ async function submitBooking() {
 ═══════════════════════════════════════════════════════ */
 function getWaMode() { try{const s=localStorage.getItem('wk_wa_mode');return s!==null?JSON.parse(s):true;}catch(e){return true;} }
 function setWaMode(v) { localStorage.setItem('wk_wa_mode',JSON.stringify(v)); }
-function saveWaMode() { setWaMode(document.getElementById('cs-wa-enabled').checked); updateWaModeUI(); showToast(getWaMode()?'✅ WhatsApp ON':'🔒 WhatsApp OFF'); }
+function saveWaMode() {
+  const val = document.getElementById('cs-wa-enabled').checked;
+  setWaMode(val);
+  updateWaModeUI();
+  supaSetSetting('wk_wa_mode', JSON.stringify(val));
+  showToast(val ? '✅ WhatsApp ON — synced!' : '🔒 WhatsApp OFF — synced!');
+}
 function getWaNumber() { return localStorage.getItem('wk_wa_number')||''; }
 function saveWaNumber() {
   const val = document.getElementById('cs-wa-number').value.trim();
   if(!validatePhone(val)){showFieldError(document.getElementById('cs-wa-number'),'err-wa-number','Must be exactly 10 digits.');return;}
   localStorage.setItem('wk_wa_number', val);
-  // Update support link
   const link = document.getElementById('wa-support-link');
   if(link) link.href = `https://wa.me/91${val}`;
-  showToast('✅ WhatsApp number saved: +91'+val);
+  // ── Sync to Supabase ──
+  supaSetSetting('wk_wa_number', val).then(ok => {
+    showToast(ok ? '✅ WhatsApp number synced to all devices: +91'+val : '✅ WhatsApp number saved locally: +91'+val);
+  });
   updateWaModeUI();
 }
 function updateWaModeUI() {
@@ -1833,9 +2001,9 @@ function closePin() {
 }
 function closePinOnOverlay(e){if(e.target===document.getElementById('pin-overlay'))closePin();}
 async function verifyPin() {
-  // BLOCK MOBILE COMPLETELY
+  // ── MOBILE पर पूरी तरह BLOCK ──
   if (isMobileDevice()) {
-    alert('❌ Admin panel is not accessible on mobile devices. Please use a laptop/desktop on the authorized network (10.221.115.x).');
+    alert('❌ Admin panel सिर्फ laptop/desktop पर accessible है।\nMobile से admin नहीं खुलेगा।');
     closePin();
     return;
   }
@@ -1843,48 +2011,64 @@ async function verifyPin() {
   const pin = document.getElementById('pin-input').value.trim();
   const pinToCheck = adminPinFromSupabase || getCeoPin();
 
-  // 1. Check PIN
+  // 1. PIN check
   if (pin !== pinToCheck) {
-    document.getElementById('pin-error').textContent = 'Incorrect PIN. Please try again.';
+    document.getElementById('pin-error').textContent = '❌ Incorrect PIN. Please try again.';
     document.getElementById('pin-error').style.display = 'block';
     document.getElementById('pin-input').value = '';
     document.getElementById('pin-input').focus();
     return;
   }
 
-  // 2. Check IP (as you requested)
-  await fetchPublicIP();
-  if (!isAdminIPAllowed()) {
-    // IP not matched — ask for Master Override
+  // 2. IP check
+  if (!currentPublicIP) await fetchPublicIP();
+  const ipOk = await isAdminIPAllowed();
+
+  if (!ipOk) {
+    // IP मेल नहीं खाई — Master Override माँगो
     const master = prompt(
-      '⚠️ Network Mismatch Detected!\n\n' +
-      'Your current IP: ' + (currentPublicIP || 'Unknown') + '\n' +
-      'Admin network: 10.221.115.x\n\n' +
-      'If you are the real admin, enter your Master Override Code:'
+      '⚠️ Network मेल नहीं खाई!\n\n' +
+      'आपकी current IP: ' + (currentPublicIP || 'Unknown') + '\n' +
+      'Allowed network: 10.221.115.x\n\n' +
+      '💡 Note: GitHub Pages पर अपनी public IP को admin panel में\n' +
+      '"Allowed IPs" section में add करें।\n\n' +
+      'Master Override Code डालें (या अपना PIN दोबारा):'
     );
-    if (master !== masterOverrideCode) {
-      alert('❌ Access Denied. Admin panel can only be opened from the authorized network or with the correct override code.');
+    if (master !== masterOverrideCode && master !== pinToCheck) {
+      alert('❌ Access Denied.\n\nAdmin panel सिर्फ authorized network या override code से खुलेगा।\n\n' +
+            '💡 Tip: Admin panel खोलने के लिए अपनी public IP (' + currentPublicIP + ') को\nSupabase की webkrafta_settings table में key "wk_allowed_ips" के रूप में save करें।');
       closePin();
       return;
     }
   }
 
-  // All checks passed
+  // ✅ सब check passed
   closePin();
   openCeoDash();
-  showToast('⚡ CEO dashboard unlocked');
+  showToast('⚡ Admin dashboard unlocked! IP: ' + (currentPublicIP || 'verified'));
 }
 function openCeoDash() {
-  if(isMobileDevice()){alert('❌ Admin panel is desktop-only.');return;}
+  if(isMobileDevice()){alert('❌ Admin panel सिर्फ laptop/desktop पर उपलब्ध है।');return;}
   renderAgentControls(); renderSettingsTab();
   switchCeoTab('bookings', document.querySelector('.ceo-tab'));
   const ov=document.getElementById('ceo-overlay');
   ov.style.display='flex'; setTimeout(()=>ov.classList.add('active'),10);
   renderBookingsList();
-  // Load Supabase tab config
+  // Supabase tab config
   const cfg = getSupaConfig();
   const urlEl=document.getElementById('cs-supa-url'); if(urlEl)urlEl.value=cfg.url;
   const anonEl=document.getElementById('cs-supa-anon'); if(anonEl)anonEl.value=cfg.anon;
+  // Show current IP
+  const ipEl = document.getElementById('current-ip-display');
+  if(ipEl) ipEl.textContent = currentPublicIP || 'loading…';
+  if(!currentPublicIP) refreshCurrentIP();
+  // Load allowed IPs from Supabase
+  supaGetSetting('wk_allowed_ips').then(saved => {
+    if(saved) {
+      const ipInput = document.getElementById('cs-allowed-ips');
+      if(ipInput) try { ipInput.value = JSON.parse(saved).join(', '); } catch(e){}
+    }
+  });
 }
 function closeCeoDash() {
   document.getElementById('ceo-overlay').classList.remove('active');
@@ -2146,8 +2330,18 @@ function applyTheme() {
   }
 }
 function saveThemeSettings() {
-  setTheme({violet:document.getElementById('cs-color-violet').value,violetLight:document.getElementById('cs-color-violet-light').value,cyan:document.getElementById('cs-color-cyan').value,bg:document.getElementById('cs-color-bg').value});
-  applyTheme(); showToast('✅ Theme colors updated!');
+  const t = {
+    violet:      document.getElementById('cs-color-violet').value,
+    violetLight: document.getElementById('cs-color-violet-light').value,
+    cyan:        document.getElementById('cs-color-cyan').value,
+    bg:          document.getElementById('cs-color-bg').value
+  };
+  setTheme(t);
+  applyTheme();
+  // ── Sync to Supabase so mobile also gets new colors ──
+  supaSetSetting('wk_theme', JSON.stringify(t)).then(ok => {
+    showToast(ok ? '✅ Theme synced to all devices!' : '✅ Theme saved locally (Supabase offline)');
+  });
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -2190,7 +2384,15 @@ function saveFounderSettings(){
   const bio=document.getElementById('cs-founder-bio').value.trim()||DEF_FOUNDER.bio;
   const enabled=document.getElementById('cs-founder-enabled').checked;
   const file=document.getElementById('cs-founder-photo').files[0];
-  const finish=photo=>{setFounder({name,title,bio,enabled,photo:photo!==undefined?photo:cur.photo});renderFounder();showToast('✅ Founder info saved!');document.getElementById('cs-founder-photo').value='';};
+  const finish=photo=>{
+    const obj={name,title,bio,enabled,photo:photo!==undefined?photo:cur.photo};
+    setFounder(obj);
+    renderFounder();
+    supaSetSetting('wk_founder', JSON.stringify(obj)).then(ok => {
+      showToast(ok ? '✅ Founder info synced to all devices!' : '✅ Founder info saved locally!');
+    });
+    document.getElementById('cs-founder-photo').value='';
+  };
   if(file){const r=new FileReader();r.onload=e=>finish(e.target.result);r.readAsDataURL(file);}else finish(undefined);
 }
 
@@ -2212,8 +2414,18 @@ function renderBanner(){
 }
 function dismissBanner(){bannerDismissed=true;document.getElementById('promo-banner').style.display='none';document.body.classList.remove('banner-active');}
 function saveBannerSettings(){
-  setBanner({enabled:document.getElementById('cs-banner-enabled').checked,text:document.getElementById('cs-banner-text').value.trim()||DEF_BANNER.text,ctaText:document.getElementById('cs-banner-cta').value.trim(),ctaLink:document.getElementById('cs-banner-link').value.trim()});
-  bannerDismissed=false;renderBanner();showToast('✅ Banner saved!');
+  const b = {
+    enabled: document.getElementById('cs-banner-enabled').checked,
+    text:    document.getElementById('cs-banner-text').value.trim() || DEF_BANNER.text,
+    ctaText: document.getElementById('cs-banner-cta').value.trim(),
+    ctaLink: document.getElementById('cs-banner-link').value.trim()
+  };
+  setBanner(b);
+  bannerDismissed=false;
+  renderBanner();
+  supaSetSetting('wk_banner', JSON.stringify(b)).then(ok => {
+    showToast(ok ? '✅ Banner synced to all devices!' : '✅ Banner saved locally!');
+  });
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -2229,8 +2441,12 @@ function saveHeroText(){
   const l1=document.getElementById('cs-hero-line1').value.trim()||'Deploy';
   const l2=document.getElementById('cs-hero-line2').value.trim()||'Intelligent Agents';
   const l3=document.getElementById('cs-hero-line3').value.trim()||'That Work For You';
-  localStorage.setItem('wk_hero_text',JSON.stringify({l1,l2,l3}));
-  applyHeroText();showToast('✅ Hero headline saved!');
+  const val = JSON.stringify({l1,l2,l3});
+  localStorage.setItem('wk_hero_text', val);
+  applyHeroText();
+  supaSetSetting('wk_hero_text', val).then(ok => {
+    showToast(ok ? '✅ Hero headline synced to all devices!' : '✅ Hero headline saved locally!');
+  });
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -2239,15 +2455,11 @@ function saveHeroText(){
 async function saveCeoPin(){
   const v = document.getElementById('cs-new-pin').value.trim();
   if(v.length<6){showToast('PIN must be at least 6 characters.',true);return;}
-  setCeoPin(v); // localStorage
+  setCeoPin(v);
+  adminPinFromSupabase = v;
   document.getElementById('cs-new-pin').value='';
-  // Also save to Supabase so it syncs to all your devices
   const ok = await saveAdminPinToSupabase(v);
-  if (ok) {
-    showToast('✅ Admin PIN updated & synced to Supabase!');
-  } else {
-    showToast('✅ PIN saved locally. Supabase sync failed — check connection.', true);
-  }
+  showToast(ok ? '✅ Admin PIN updated & synced to Supabase!' : '✅ PIN saved locally. Supabase sync failed.', !ok);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -2278,14 +2490,21 @@ function renderSettingsTab(){
 function resetAllSiteSettings(){
   ['wk_theme','wk_founder','wk_banner','wk_logo','wk_hero_text'].forEach(k=>localStorage.removeItem(k));
   applyTheme();renderFounder();bannerDismissed=false;renderBanner();applyLogo();applyHeroText();renderSettingsTab();
-  showToast('↺ Design reset to default.');
+  // Also remove from Supabase
+  ['wk_theme','wk_founder','wk_banner','wk_hero_text'].forEach(key => {
+    if(supaClient) supaClient.from('webkrafta_settings').delete().eq('key',key).then(()=>{});
+  });
+  showToast('↺ Design reset to default (synced to all devices).');
 }
 
 /* ═══════════════════════════════════════════════════════
    ANIMATION MODE
 ═══════════════════════════════════════════════════════ */
 function getAnimMode(){try{return localStorage.getItem('wk_anim_mode')||'helix';}catch(e){return 'helix';}}
-function setAnimModeStore(m){localStorage.setItem('wk_anim_mode',m);}
+function setAnimModeStore(m){
+  localStorage.setItem('wk_anim_mode',m);
+  supaSetSetting('wk_anim_mode', m); // sync to Supabase
+}
 function isMobile(){return window.innerWidth<=768;}
 function stopAllAnimations(){
   if(carouselAnimId){cancelAnimationFrame(carouselAnimId);carouselAnimId=null;}
@@ -2662,10 +2881,8 @@ function isDesktopDevice() { return !isMobileDevice(); }
 /* ═══════════════════════════════════════════════════════
    INIT
 ═══════════════════════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded',()=>{
-  // Init Supabase first
-  initSupabase();
-
+document.addEventListener('DOMContentLoaded', async () => {
+  // 1. पहले local settings apply करो (fast load)
   applyTheme();
   applyLogo();
   applyHeroText();
@@ -2676,17 +2893,20 @@ document.addEventListener('DOMContentLoaded',()=>{
   buildAgentList();
   buildFeatures();
   updateWaModeUI();
-
   if(!isMobile()) animateCarousel();
   applyAnimMode();
-
-  // Load saved custom animation if custom mode active
   if(getAnimMode()==='custom'){
     const saved=localStorage.getItem('wk_custom_anim');
     if(saved){const ta=document.getElementById('custom-anim-code');if(ta)ta.value=saved;applyCustomAnimation();}
   }
-
   document.getElementById('detail-page').style.display='none';
+
+  // 2. Supabase init (cloud sync) — यह background में run होता है
+  // loadSettingsFromSupabase() अपने-आप initSupabase के अंदर call होगा
+  initSupabase();
+
+  // 3. IP pre-fetch background में
+  fetchPublicIP();
 });
 </script>
 </body>

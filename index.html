@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WebKrafta — AI Agents for Your Business</title>
+<!-- ADMIN: Search for YOUR_SUPABASE_ANON_KEY_HERE and replace with your real Supabase anon key -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -282,6 +283,104 @@ body.banner-active #hero { padding-top: 160px; }
 #booking-save-note { text-align: center; font-size: 11px; color: var(--text3); margin-top: 10px; display: none; }
 .phone-hint { font-size: 11px; color: var(--text3); margin-top: 4px; }
 
+/* ═══════════ PIN & CEO DASHBOARD ═══════════ */
+#pin-overlay { position: fixed; inset: 0; z-index: 5000; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); display: none; align-items: center; justify-content: center; }
+#pin-overlay.active { display: flex; }
+#pin-modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--radius-lg); padding: 40px 36px; width: 100%; max-width: 380px; text-align: center; position: relative; }
+#pin-modal h2 { font-family: var(--font-head); font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+#pin-modal p { color: var(--text2); font-size: 14px; margin-bottom: 28px; }
+#pin-input { width: 100%; padding: 14px; font-size: 22px; text-align: center; letter-spacing: 0.3em; background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius-sm); color: var(--text); font-family: var(--font-mono); outline: none; margin-bottom: 14px; transition: var(--transition); }
+#pin-input:focus { border-color: var(--violet-light); }
+#pin-error { color: var(--rose); font-size: 13px; margin-bottom: 14px; display: none; }
+.pin-close { position: absolute; top: 14px; right: 14px; width: 30px; height: 30px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border); color: var(--text2); font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+#ceo-overlay { position: fixed; inset: 0; z-index: 5000; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); display: none; align-items: center; justify-content: center; padding: 24px; }
+#ceo-overlay.active { display: flex; }
+#ceo-dashboard { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--radius-lg); width: 100%; max-width: 820px; max-height: 88vh; overflow-y: auto; position: relative; }
+#ceo-header { padding: 28px 32px 0; display: flex; align-items: center; justify-content: space-between; }
+#ceo-header h2 { font-family: var(--font-head); font-size: 22px; font-weight: 800; }
+.ceo-close { width: 32px; height: 32px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border); color: var(--text2); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
+.ceo-close:hover { color: var(--text); }
+.ceo-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); padding: 0 32px; margin-top: 0; overflow-x: auto; }
+.ceo-tab { padding: 14px 16px; font-size: 13px; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; color: var(--text2); transition: var(--transition); background: none; border-top: none; border-left: none; border-right: none; white-space: nowrap; }
+.ceo-tab.active { color: var(--violet-light); border-bottom-color: var(--violet-light); }
+.ceo-tab-content { padding: 28px 32px; display: none; }
+.ceo-tab-content.active { display: block; }
+.ceo-note { background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.2); border-radius: var(--radius-sm); padding: 14px 16px; font-size: 13px; color: var(--text2); margin-bottom: 24px; line-height: 1.6; }
+
+/* Booking entry */
+.booking-entry { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 14px; position: relative; }
+.booking-entry-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+.booking-client-name { font-weight: 700; font-size: 15px; }
+.booking-timestamp { font-size: 11px; color: var(--text3); font-family: var(--font-mono); }
+.booking-details { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.booking-plan-badge { display: inline-flex; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; margin-bottom: 6px; }
+.booking-delete { padding: 5px 12px; border-radius: var(--radius-sm); background: rgba(244,63,94,0.1); border: 1px solid rgba(244,63,94,0.3); color: var(--rose); font-size: 12px; font-weight: 600; cursor: pointer; transition: var(--transition); margin-top: 10px; }
+.booking-delete:hover { background: rgba(244,63,94,0.2); }
+
+/* Agent control */
+.agent-control-tab-label { font-size: 12px; color: var(--text3); font-family: var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.agent-row { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 10px; background: var(--surface); transition: var(--transition); }
+.agent-row.disabled { opacity: 0.5; }
+.agent-row-top { display: flex; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; gap: 10px; }
+.agent-row-left { display: flex; align-items: center; gap: 12px; }
+.agent-color-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.agent-tier-num { font-family: var(--font-mono); font-size: 11px; color: var(--text3); }
+.agent-row-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.agent-row-right { display: flex; align-items: center; gap: 12px; }
+.agent-status-badge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; }
+.status-active { background: rgba(16,185,129,0.15); color: var(--emerald); border: 1px solid rgba(16,185,129,0.3); }
+.status-hidden { background: rgba(90,90,122,0.15); color: var(--text3); border: 1px solid rgba(90,90,122,0.3); }
+.agent-row-pricing { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid var(--border); }
+.agent-price-field { display: flex; flex-direction: column; gap: 4px; }
+.agent-price-field label { font-size: 10px; font-family: var(--font-mono); color: var(--text3); text-transform: uppercase; }
+.agent-price-input { background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius-sm); color: var(--text); font-family: var(--font-mono); font-size: 13px; padding: 7px 10px; width: 120px; }
+.agent-price-input:focus { outline: none; border-color: var(--violet-light); }
+.agent-price-reset { background: none; border: 1px solid var(--border2); border-radius: var(--radius-sm); color: var(--text3); font-family: var(--font-body); font-size: 11px; font-weight: 600; padding: 8px 12px; cursor: pointer; transition: var(--transition); }
+.agent-price-reset:hover { color: var(--text); border-color: var(--violet-light); }
+.agent-price-saved-note { font-size: 11px; color: var(--emerald); font-family: var(--font-mono); font-weight: 600; opacity: 0; transition: opacity 0.3s; }
+.agent-price-saved-note.show { opacity: 1; }
+
+/* Toggle */
+.toggle-switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; cursor: pointer; inset: 0; background: rgba(255,255,255,0.1); border-radius: 12px; transition: 0.3s; }
+.toggle-slider::before { content: ''; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: 0.3s; }
+input:checked + .toggle-slider { background: var(--violet); }
+input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+/* Settings */
+.settings-group { margin-bottom: 30px; padding-bottom: 26px; border-bottom: 1px solid var(--border); }
+.settings-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.settings-group h4 { font-family: var(--font-head); font-size: 15px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+.settings-group-desc { font-size: 12px; color: var(--text3); line-height: 1.6; margin-bottom: 16px; }
+.settings-toggle-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.settings-toggle-row .form-label { margin-bottom: 0; }
+.settings-file-input { width: 100%; padding: 10px; background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius-sm); color: var(--text2); font-size: 13px; margin-bottom: 12px; }
+.settings-actions-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.color-field-row { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 18px; }
+.color-field-row label { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--text2); font-weight: 600; }
+.color-field-row input[type=color] { width: 52px; height: 36px; border-radius: 8px; border: 1px solid var(--border2); background: none; cursor: pointer; padding: 2px; }
+.theme-preset-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; max-height: 300px; overflow-y: auto; padding: 8px; background: var(--surface); border-radius: var(--radius-sm); border: 1px solid var(--border); }
+.theme-preset-swatch { display: flex; align-items: center; gap: 6px; padding: 5px 10px 5px 5px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border2); color: var(--text2); font-size: 11px; font-weight: 600; cursor: pointer; transition: var(--transition); white-space: nowrap; }
+.theme-preset-swatch:hover { background: var(--surface2); border-color: var(--violet-light); color: var(--text); }
+.theme-preset-dot { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.2); }
+
+/* View mode / anim mode */
+.anim-preview-btn { flex: 1; min-width: 140px; padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border2); background: var(--surface); color: var(--text2); font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; transition: var(--transition); text-align: center; }
+.anim-preview-btn.selected { background: rgba(124,58,237,0.15); color: var(--violet-light); border-color: var(--violet); }
+.anim-preview-btn:hover { background: var(--surface2); }
+.view-mode-btn { flex: 1; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border2); background: var(--surface); color: var(--text2); font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; transition: var(--transition); text-align: center; }
+.view-mode-btn.active { background: rgba(6,182,212,0.15); color: var(--cyan); border-color: var(--cyan); }
+
+/* Custom animation injector */
+.anim-code-area { width: 100%; min-height: 140px; background: var(--bg); border: 1px solid var(--border2); border-radius: var(--radius-sm); color: var(--cyan); font-family: var(--font-mono); font-size: 12px; padding: 12px; resize: vertical; outline: none; transition: var(--transition); }
+.anim-code-area:focus { border-color: var(--violet-light); }
+
+/* WA settings */
+.wa-number-field { position: relative; }
+.wa-number-field input { padding-left: 52px; }
+.wa-country-code { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-family: var(--font-mono); font-size: 13px; color: var(--violet-light); font-weight: 700; pointer-events: none; }
+
 /* ═══════════ FOOTER ═══════════ */
 footer { border-top: 1px solid var(--border); padding: 48px 32px; text-align: center; position: relative; z-index: 1; }
 .footer-logo { font-family: var(--font-head); font-size: 20px; font-weight: 800; background: linear-gradient(135deg, var(--violet-light), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 20px; display: inline-block; }
@@ -297,6 +396,13 @@ footer { border-top: 1px solid var(--border); padding: 48px 32px; text-align: ce
 #toast.error-toast { border-color: var(--rose); }
 #toast .toast-icon { font-size: 20px; }
 #toast .toast-msg { font-size: 14px; color: var(--text); font-weight: 600; }
+
+/* ═══════════ SUPABASE STATUS ═══════════ */
+.supabase-status { display: flex; align-items: center; gap: 8px; font-size: 12px; font-family: var(--font-mono); }
+.supabase-dot { width: 8px; height: 8px; border-radius: 50%; }
+.supabase-dot.connected { background: var(--emerald); box-shadow: 0 0 6px var(--emerald); }
+.supabase-dot.disconnected { background: var(--rose); }
+.supabase-dot.pending { background: var(--amber); animation: pulse-dot 1.5s ease-in-out infinite; }
 
 /* ═══════════ RESPONSIVE ═══════════ */
 @media (max-width: 900px) {
@@ -325,6 +431,10 @@ footer { border-top: 1px solid var(--border); padding: 48px 32px; text-align: ce
   #booking-modal { padding: 24px 18px; border-radius: var(--radius); }
   .pp-body { padding: 18px 18px 24px; }
   .pp-actions { flex-direction: column; }
+  .ceo-tab { padding: 12px 14px; font-size: 12px; }
+  #ceo-header { padding: 18px 18px 0; }
+  .ceo-tab-content { padding: 18px; }
+  #ceo-dashboard { max-width: 100%; margin: 0 10px; }
   .dp-hero { height: 240px; }
   .dp-body { padding: 28px 16px 60px; }
   footer { padding: 36px 16px; }
@@ -373,7 +483,7 @@ footer { border-top: 1px solid var(--border); padding: 48px 32px; text-align: ce
     <span class="hero-badge-dot"></span>
     12 AI Agent Tiers Available
   </div>
-  <h1 id="hero-heading">
+  <h1 id="hero-heading" onclick="handleHeroTap(event)">
     Deploy <span class="hero-highlight">Intelligent Agents</span> That Work For You
   </h1>
   <p>Build your AI workforce in days, not months. From smart chatbots to fully autonomous platforms — WebKrafta deploys custom-trained agents that automate operations, delight customers, and accelerate your growth 24/7.</p>
@@ -581,7 +691,7 @@ footer { border-top: 1px solid var(--border); padding: 48px 32px; text-align: ce
   </div>
   <div class="footer-copy">
     &copy; 2025 WebKrafta. All rights reserved. &nbsp;·&nbsp;
-    <a href="admin.html">Admin</a>
+    <a onclick="openPin()">Admin</a>
   </div>
 </footer>
 
@@ -626,6 +736,298 @@ footer { border-top: 1px solid var(--border); padding: 48px 32px; text-align: ce
   </div>
 </div>
 
+<!-- PIN MODAL -->
+<div id="pin-overlay" onclick="closePinOnOverlay(event)">
+  <div id="pin-modal">
+    <button class="pin-close" onclick="closePin()">✕</button>
+    <div style="font-size:32px;margin-bottom:12px;">🔐</div>
+    <h2>CEO Access</h2>
+    <p>Enter your admin PIN to access the dashboard<br><span style="font-size:11px;color:var(--text3);">PIN is synced from Supabase data center</span></p>
+    <input type="password" id="pin-input" maxlength="10" placeholder="••••" onkeydown="if(event.key==='Enter')verifyPin()">
+    <div id="pin-error">Incorrect PIN. Please try again.</div>
+    <button class="btn btn-primary" onclick="verifyPin()" style="width:100%">Unlock Dashboard</button>
+  </div>
+</div>
+
+<!-- CEO DASHBOARD -->
+<div id="ceo-overlay" onclick="closeCeoDashOnOverlay(event)">
+  <div id="ceo-dashboard">
+    <div id="ceo-header">
+      <div>
+        <h2>⚡ CEO Dashboard</h2>
+        <p style="font-size:12px;color:var(--text3);margin-top:4px;padding-bottom:16px;display:flex;align-items:center;gap:8px;">
+          WebKrafta Admin &nbsp;·&nbsp;
+          <span class="supabase-status"><span class="supabase-dot pending" id="supa-dot"></span><span id="supa-status-text">Connecting…</span></span>
+        </p>
+      </div>
+      <button class="ceo-close" onclick="closeCeoDash()">✕</button>
+    </div>
+    <div class="ceo-tabs">
+      <button class="ceo-tab active" onclick="switchCeoTab('bookings',this)">📋 Bookings</button>
+      <button class="ceo-tab" onclick="switchCeoTab('agents',this)">🤖 Agents</button>
+      <button class="ceo-tab" onclick="switchCeoTab('settings',this)">🎨 Site Settings</button>
+      <button class="ceo-tab" onclick="switchCeoTab('accessibility',this)">⚙️ Accessibility</button>
+      <button class="ceo-tab" onclick="switchCeoTab('supabase',this)">☁️ Supabase</button>
+    </div>
+
+    <!-- BOOKINGS TAB -->
+    <div class="ceo-tab-content active" id="ceo-tab-bookings">
+      <div class="ceo-note" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+        <span>☁️ <strong>LIVE DATA from Supabase</strong> — Every customer booking from mobile/desktop appears here instantly. Tap Refresh to reload.</span>
+        <button onclick="renderBookingsList()" style="padding:7px 16px;border-radius:8px;background:linear-gradient(135deg,var(--violet),var(--cyan));border:none;color:#fff;font-family:var(--font-body);font-size:13px;font-weight:700;cursor:pointer;">⟳ Refresh</button>
+      </div>
+      <div id="bookings-list"></div>
+    </div>
+
+    <!-- AGENTS TAB -->
+    <div class="ceo-tab-content" id="ceo-tab-agents">
+      <div class="agent-control-tab-label">Agent Visibility &amp; Pricing Control</div>
+      <div class="ceo-note">Toggle agents on/off and edit their prices. Changes apply instantly to the live site.</div>
+      <div id="agent-control-list"></div>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div class="ceo-tab-content" id="ceo-tab-settings">
+      <div class="agent-control-tab-label">Site Design &amp; Content</div>
+
+      <!-- THEME -->
+      <div class="settings-group">
+        <h4>🎨 Theme Colors — 100+ Presets</h4>
+        <div class="settings-group-desc">Click any preset to apply instantly. Three groups: Dark, Mid, and Light themes.</div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+          <button class="btn btn-outline" style="font-size:11px;padding:6px 14px;" onclick="filterPresets('all')">All</button>
+          <button class="btn btn-outline" style="font-size:11px;padding:6px 14px;" onclick="filterPresets('dark')">🌑 Dark</button>
+          <button class="btn btn-outline" style="font-size:11px;padding:6px 14px;" onclick="filterPresets('mid')">🌗 Mid</button>
+          <button class="btn btn-outline" style="font-size:11px;padding:6px 14px;" onclick="filterPresets('light')">☀️ Light</button>
+        </div>
+        <div class="theme-preset-row" id="theme-preset-row"></div>
+        <div class="settings-group-desc" style="margin-top:12px;">Fine-tune manually:</div>
+        <div class="color-field-row">
+          <label>Primary accent<input type="color" id="cs-color-violet"></label>
+          <label>Primary light<input type="color" id="cs-color-violet-light"></label>
+          <label>Secondary accent<input type="color" id="cs-color-cyan"></label>
+          <label>Background<input type="color" id="cs-color-bg"></label>
+        </div>
+        <button class="btn btn-primary" onclick="saveThemeSettings()">Apply Colors</button>
+      </div>
+
+      <!-- LOGO -->
+      <div class="settings-group">
+        <h4>🏷️ Site Logo</h4>
+        <div class="settings-group-desc">Upload an image to replace the "WebKrafta" text logo in the nav and footer.</div>
+        <input type="file" accept="image/*" id="cs-logo-file" class="settings-file-input">
+        <div class="settings-actions-row">
+          <button class="btn btn-primary" onclick="saveLogoSettings()">Upload Logo</button>
+          <button class="btn btn-outline" onclick="resetLogoSettings()">Remove Logo</button>
+        </div>
+      </div>
+
+      <!-- FOUNDER -->
+      <div class="settings-group">
+        <h4>👤 Founder Section</h4>
+        <div class="settings-group-desc">Shown publicly near the bottom of the site.</div>
+        <div class="settings-toggle-row">
+          <label class="form-label">Show founder section</label>
+          <label class="toggle-switch"><input type="checkbox" id="cs-founder-enabled"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="cs-founder-name"></div>
+        <div class="form-group"><label class="form-label">Title</label><input class="form-input" id="cs-founder-title"></div>
+        <div class="form-group"><label class="form-label">Bio</label><textarea class="form-textarea" id="cs-founder-bio"></textarea></div>
+        <div class="form-group">
+          <label class="form-label">Photo <span style="color:var(--text3);">(optional)</span></label>
+          <input type="file" accept="image/*" id="cs-founder-photo" class="settings-file-input">
+        </div>
+        <button class="btn btn-primary" onclick="saveFounderSettings()">Save Founder Info</button>
+      </div>
+
+      <!-- BANNER -->
+      <div class="settings-group">
+        <h4>📣 Promo Banner</h4>
+        <div class="settings-group-desc">A slim announcement bar at the top of the site.</div>
+        <div class="settings-toggle-row">
+          <label class="form-label">Show banner</label>
+          <label class="toggle-switch"><input type="checkbox" id="cs-banner-enabled"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="form-group"><label class="form-label">Message</label><input class="form-input" id="cs-banner-text" maxlength="120"></div>
+        <div class="form-group"><label class="form-label">Button text (optional)</label><input class="form-input" id="cs-banner-cta" maxlength="24" placeholder="Claim Offer"></div>
+        <div class="form-group"><label class="form-label">Button link (optional)</label><input class="form-input" id="cs-banner-link" placeholder="https://..."></div>
+        <button class="btn btn-primary" onclick="saveBannerSettings()">Save Banner</button>
+      </div>
+
+      <!-- HERO TEXT -->
+      <div class="settings-group">
+        <h4>✍️ Hero Headline</h4>
+        <div class="settings-group-desc">Customize the main headline on the hero section.</div>
+        <div class="form-group"><label class="form-label">Line 1 (plain text)</label><input class="form-input" id="cs-hero-line1" placeholder="Deploy"></div>
+        <div class="form-group"><label class="form-label">Line 2 (gradient text)</label><input class="form-input" id="cs-hero-line2" placeholder="Intelligent Agents"></div>
+        <div class="form-group"><label class="form-label">Line 3 (plain text)</label><input class="form-input" id="cs-hero-line3" placeholder="That Work For You"></div>
+        <button class="btn btn-primary" onclick="saveHeroText()">Save Headline</button>
+      </div>
+
+      <!-- PIN -->
+      <div class="settings-group">
+        <h4>🔑 Admin PIN</h4>
+        <div class="settings-group-desc">Unlocks this dashboard. Also works as a secret key sequence typed anywhere on the homepage.</div>
+        <div class="form-group"><label class="form-label">New PIN (6+ characters)</label><input class="form-input" id="cs-new-pin" maxlength="10" placeholder="••••" type="password"></div>
+        <button class="btn btn-primary" onclick="saveCeoPin()">Update PIN</button>
+      </div>
+
+      <!-- RESET -->
+      <div class="settings-group">
+        <h4>↺ Reset</h4>
+        <div class="settings-group-desc">Restores colors, founder, banner, logo to defaults. PIN and bookings are not affected.</div>
+        <button class="btn btn-outline" onclick="resetAllSiteSettings()">Reset Design to Default</button>
+      </div>
+    </div>
+
+    <!-- ACCESSIBILITY TAB -->
+    <div class="ceo-tab-content" id="ceo-tab-accessibility">
+      <div class="agent-control-tab-label">Accessibility &amp; Experience</div>
+
+      <!-- ANIMATION MODE -->
+      <div class="settings-group">
+        <h4>🎡 Animation Style</h4>
+        <div class="settings-group-desc">How agent cards are displayed. Mobile always shows a swipeable flat grid regardless.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;">
+          <button class="anim-preview-btn" id="anim-btn-helix" onclick="setAnimMode('helix')">🌀 Helix Carousel<br><span style="font-size:10px;font-weight:400;color:var(--text3);">Classic 3D spiral</span></button>
+          <button class="anim-preview-btn" id="anim-btn-cd" onclick="setAnimMode('cd')">💿 CD Disc Rings<br><span style="font-size:10px;font-weight:400;color:var(--text3);">Concentric discs</span></button>
+          <button class="anim-preview-btn" id="anim-btn-orbital" onclick="setAnimMode('orbital')">🪐 3D Orbital<br><span style="font-size:10px;font-weight:400;color:var(--text3);">Planets orbiting</span></button>
+          <button class="anim-preview-btn" id="anim-btn-wheel" onclick="setAnimMode('wheel')">🎡 Gold Wheel<br><span style="font-size:10px;font-weight:400;color:var(--text3);">Lottery wheel</span></button>
+          <button class="anim-preview-btn" id="anim-btn-custom" onclick="setAnimMode('custom')">✨ Custom Code<br><span style="font-size:10px;font-weight:400;color:var(--text3);">Inject your own</span></button>
+        </div>
+        <div class="ceo-note">💡 Mobile always shows a swipeable card grid. On desktop, the selected style is used.</div>
+
+        <!-- CUSTOM ANIMATION INJECTOR -->
+        <div id="custom-anim-panel" style="display:none;margin-top:16px;">
+          <div class="settings-group-desc" style="color:var(--amber);">⚠️ Paste valid HTML/JS/CSS animation code below. It will be injected into the animation section. Use the container ID <code style="color:var(--cyan);">#custom-anim-container</code> as your root element.</div>
+          <textarea class="anim-code-area" id="custom-anim-code" placeholder="<!-- Paste your animation HTML/CSS/JS here -->&#10;<!-- Example: -->&#10;<div id='custom-anim-container'>&#10;  <canvas id='myCanvas'></canvas>&#10;</div>&#10;<script>&#10;  // Your animation JS&#10;</scri&#10;pt>"></textarea>
+          <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="applyCustomAnimation()">▶ Run Animation</button>
+            <button class="btn btn-outline" onclick="clearCustomAnimation()">✕ Clear</button>
+            <button class="btn btn-outline" onclick="saveCustomAnimation()">💾 Save</button>
+          </div>
+          <div class="ceo-note" style="margin-top:12px;border-color:rgba(6,182,212,0.3);background:rgba(6,182,212,0.05);">
+            Your saved animation runs automatically when visitors load the site (if Custom Code is selected). Clearing removes it.
+          </div>
+        </div>
+      </div>
+
+      <!-- WA MODE -->
+      <div class="settings-group">
+        <h4>📱 WhatsApp Booking</h4>
+        <div class="settings-group-desc">Control WhatsApp redirect behavior and set the receiving number.</div>
+        <div class="settings-toggle-row">
+          <div>
+            <label class="form-label" style="margin-bottom:2px;">WhatsApp redirect on booking</label>
+            <div style="font-size:12px;color:var(--text3);line-height:1.5;">ON = Client redirected to WhatsApp after booking. OFF = Stored only in Supabase.</div>
+          </div>
+          <label class="toggle-switch" style="flex-shrink:0;margin-left:16px;">
+            <input type="checkbox" id="cs-wa-enabled" onchange="saveWaMode()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="form-group">
+          <label class="form-label">WhatsApp Receiving Number <span>*</span> <span style="color:var(--text3);font-weight:400;">(10 digits only)</span></label>
+          <div class="wa-number-field" style="position:relative;">
+            <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-family:var(--font-mono);font-size:13px;color:var(--violet-light);font-weight:700;">+91</span>
+            <input class="form-input" id="cs-wa-number" type="tel" placeholder="9864197899" maxlength="10" style="padding-left:52px;" onkeypress="return event.charCode >= 48 && event.charCode <= 57" oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)">
+          </div>
+          <div class="field-error" id="err-wa-number">WhatsApp number must be exactly 10 digits.</div>
+        </div>
+        <button class="btn btn-primary" onclick="saveWaNumber()">Save WhatsApp Number</button>
+        <div class="ceo-note" id="wa-mode-status" style="margin-top:14px;">Loading…</div>
+      </div>
+
+      <!-- VIEW MODE -->
+      <div class="settings-group">
+        <h4>🖥️ Preview View Mode</h4>
+        <div class="settings-group-desc">Simulate different screen sizes. Your session only — visitors always see the real responsive layout.</div>
+        <div style="display:flex;gap:10px;margin-bottom:14px;">
+          <button class="view-mode-btn" id="view-btn-auto" onclick="setViewMode('auto')">🖥️ Auto</button>
+          <button class="view-mode-btn" id="view-btn-mobile" onclick="setViewMode('mobile')">📱 Mobile</button>
+          <button class="view-mode-btn" id="view-btn-desktop" onclick="setViewMode('desktop')">💻 Desktop</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUPABASE TAB -->
+    <div class="ceo-tab-content" id="ceo-tab-supabase">
+      <div class="agent-control-tab-label">Supabase Database Configuration</div>
+      <div class="ceo-note">
+        ☁️ WebKrafta uses <strong>Supabase</strong> as its database. Bookings from all clients (mobile + desktop) are stored here and synced across all your devices in real time.
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;padding:14px 16px;background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border2);">
+        <span class="supabase-dot" id="supa-dot-tab" style="width:12px;height:12px;flex-shrink:0;border-radius:50%;"></span>
+        <div>
+          <div style="font-size:13px;font-weight:700;" id="supa-status-tab">Checking…</div>
+          <div style="font-size:11px;color:var(--text3);font-family:var(--font-mono);" id="supa-url-display"></div>
+        </div>
+      </div>
+      <div class="settings-group">
+        <h4>Database Details</h4>
+        <div class="settings-group-desc">Your Supabase credentials (pre-configured). Update only if you change your Supabase project.</div>
+        <div class="form-group"><label class="form-label">Project URL</label><input class="form-input" id="cs-supa-url" style="font-family:var(--font-mono);font-size:12px;"></div>
+        <div class="form-group"><label class="form-label">Publishable (Anon) Key</label><input class="form-input" id="cs-supa-anon" type="password" style="font-family:var(--font-mono);font-size:12px;"></div>
+        <div class="settings-actions-row">
+          <button class="btn btn-primary" onclick="saveSupabaseConfig()">Save &amp; Reconnect</button>
+          <button class="btn btn-outline" onclick="testSupabaseConnection()">Test Connection</button>
+        </div>
+      </div>
+      <div class="settings-group">
+        <h4>Table Setup</h4>
+        <div class="settings-group-desc">Run this SQL in your Supabase SQL editor to create the bookings table if it doesn't exist yet.</div>
+        <pre style="background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:14px;font-family:var(--font-mono);font-size:11px;color:var(--cyan);overflow-x:auto;line-height:1.6;">-- 1. Bookings Table (Customer data)
+CREATE TABLE IF NOT EXISTS webkrafta_bookings (
+  id BIGSERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  biz TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  email TEXT,
+  plan TEXT,
+  plan_id INTEGER,
+  setup_fee TEXT,
+  message TEXT,
+  via_wa BOOLEAN DEFAULT true,
+  from_mobile BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Settings Table (Admin PIN, global config)
+CREATE TABLE IF NOT EXISTS webkrafta_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Insert default admin PIN (change '2025' if you want a different default)
+INSERT INTO webkrafta_settings (key, value) VALUES ('admin_pin', '2025')
+ON CONFLICT (key) DO NOTHING;
+
+-- Enable Row Level Security
+ALTER TABLE webkrafta_bookings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE webkrafta_settings ENABLE ROW LEVEL SECURITY;
+
+-- Allow anonymous inserts (for booking form)
+CREATE POLICY "allow_insert_bookings" ON webkrafta_bookings
+  FOR INSERT TO anon WITH CHECK (true);
+
+-- Allow anonymous reads (for admin dashboard)
+CREATE POLICY "allow_read_bookings" ON webkrafta_bookings
+  FOR SELECT TO anon USING (true);
+
+-- Allow anonymous deletes (for admin)
+CREATE POLICY "allow_delete_bookings" ON webkrafta_bookings
+  FOR DELETE TO anon USING (true);
+
+-- Allow anonymous read/write on settings (needed for PIN sync without login)
+CREATE POLICY "allow_all_settings" ON webkrafta_settings
+  FOR ALL TO anon USING (true) WITH CHECK (true);</pre>
+        <button class="btn btn-outline" onclick="copySupabaseSQL()" style="margin-top:10px;">📋 Copy SQL</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div id="toast">
   <span class="toast-icon">✅</span>
@@ -634,17 +1036,311 @@ footer { border-top: 1px solid var(--border); padding: 48px 32px; text-align: ce
 
 <script>
 /* ═══════════════════════════════════════════════════════
-   SUPABASE CONFIGURATION — fixed for this site, not editable
-   from the browser. Both index.html and admin.html point at
-   the exact same project, so there is no way for them to drift.
+   SUPABASE CONFIGURATION — PASTE YOUR REAL ANON KEY BELOW
 ═══════════════════════════════════════════════════════ */
-const SUPA_URL = 'https://hsrpfrhzkrlugvpngjsl.supabase.co';
-const SUPA_ANON = 'sb_publishable_dmuwtMmXNzFlalnJbOBftQ_7hXKHlXd';
+// ⚠️ INSTRUCTION: Go to Supabase Dashboard → Project Settings → API → Copy 'anon public' key
+// Replace the text below between the quotes with your real key (starts with eyJ...)
+const DEFAULT_SUPA_URL = 'https://hsrpfrhzkrlugvpngjsl.supabase.co';
+const DEFAULT_SUPA_ANON = 'YOUR_SUPABASE_ANON_KEY_HERE';
+
 let supaClient = null;
-try { supaClient = supabase.createClient(SUPA_URL, SUPA_ANON); } catch(e) { console.warn('Supabase init failed:', e.message); }
+let supaConnected = false;
+let adminPinFromSupabase = null;   // PIN fetched from Supabase
+let currentPublicIP = '';          // For IP check
+let masterOverrideCode = 'WEBKRAFTA_MASTER_007'; // Second secret if IP fails
+
+function getSupaConfig() {
+  try {
+    const s = localStorage.getItem('wk_supa_config');
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  return { url: DEFAULT_SUPA_URL, anon: DEFAULT_SUPA_ANON };
+}
+
+function saveSupabaseConfig() {
+  const url = document.getElementById('cs-supa-url').value.trim();
+  const anon = document.getElementById('cs-supa-anon').value.trim();
+  if (!url || !anon) { showToast('⚠️ Both URL and key are required.', true); return; }
+  localStorage.setItem('wk_supa_config', JSON.stringify({ url, anon }));
+  initSupabase();
+  showToast('✅ Supabase config saved. Reconnecting…');
+}
+
+function initSupabase() {
+  try {
+    const cfg = getSupaConfig();
+    supaClient = supabase.createClient(cfg.url, cfg.anon);
+    setSupaStatus('pending', 'Connecting…');
+    // Test with a lightweight query
+    supaClient.from('webkrafta_bookings').select('id', { count: 'exact', head: true })
+      .then(({ error }) => {
+        if (error && error.code !== 'PGRST116') {
+          // PGRST116 = table doesn't exist yet — connection still works
+          if (error.message && error.message.toLowerCase().includes('does not exist')) {
+            setSupaStatus('connected', 'Connected (table not yet created — run SQL setup)');
+          } else {
+            setSupaStatus('disconnected', 'Connection error: ' + error.message);
+          }
+        } else {
+          supaConnected = true;
+          setSupaStatus('connected', 'Connected to Supabase ✓');
+        }
+      }).catch(e => {
+        setSupaStatus('disconnected', 'Failed: ' + e.message);
+      });
+    document.getElementById('supa-url-display').textContent = cfg.url;
+    // After connection, fetch admin PIN from Supabase
+    fetchPublicIP().then(() => {
+      fetchAdminPinFromSupabase().then(pin => {
+        if (!pin) {
+          // If no PIN in Supabase yet, push the current local one
+          ensureSettingsTable();
+        }
+      });
+    });
+  } catch(e) {
+    setSupaStatus('disconnected', 'Init error: ' + e.message);
+  }
+}
+
+function setSupaStatus(state, text) {
+  supaConnected = (state === 'connected');
+  ['supa-dot','supa-dot-tab'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.className = 'supabase-dot ' + state;
+    if (state === 'pending') el.style.animation = 'pulse-dot 1.5s ease-in-out infinite';
+    else el.style.animation = '';
+  });
+  const t1 = document.getElementById('supa-status-text');
+  const t2 = document.getElementById('supa-status-tab');
+  if (t1) t1.textContent = text;
+  if (t2) t2.textContent = text;
+}
 
 /* ═══════════════════════════════════════════════════════
-   AGENT DATA (static — pricing/visibility overridden by live settings)
+   ADMIN PIN SYNC — SUPABASE IS THE SOURCE OF TRUTH
+═══════════════════════════════════════════════════════ */
+async function fetchAdminPinFromSupabase() {
+  if (!supaClient) return null;
+  try {
+    const { data, error } = await supaClient
+      .from('webkrafta_settings')
+      .select('value')
+      .eq('key', 'admin_pin')
+      .single();
+    if (error) {
+      if (error.code === 'PGRST116') return null; // row missing
+      console.warn('Supabase PIN fetch error:', error.message);
+      return null;
+    }
+    if (data && data.value) {
+      adminPinFromSupabase = data.value;
+      localStorage.setItem('wk_ceo_pin', data.value); // local cache
+      return data.value;
+    }
+  } catch(e) { console.warn('Exception fetching PIN:', e); }
+  return null;
+}
+
+async function saveAdminPinToSupabase(pin) {
+  if (!supaClient) return false;
+  try {
+    const { error } = await supaClient
+      .from('webkrafta_settings')
+      .upsert(
+        { key: 'admin_pin', value: pin, updated_at: new Date().toISOString() },
+        { onConflict: 'key' }
+      );
+    if (error) { console.warn('Supabase PIN save error:', error.message); return false; }
+    adminPinFromSupabase = pin;
+    return true;
+  } catch(e) { console.warn('Exception saving PIN:', e); return false; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   IP CHECK FOR ADMIN ACCESS
+═══════════════════════════════════════════════════════ */
+async function fetchPublicIP() {
+  try {
+    const res = await fetch('https://api.ipify.org?format=json');
+    const data = await res.json();
+    currentPublicIP = data.ip || '';
+    return currentPublicIP;
+  } catch(e) {
+    currentPublicIP = '';
+    return '';
+  }
+}
+function isAdminIPAllowed() {
+  // You requested 10.221.115.x check
+  // NOTE: GitHub Pages sees your PUBLIC IP, not your WiFi IP (10.221.115.x).
+  // This check will only pass if your PUBLIC IP also starts with 10.221.115 (rare).
+  // That's why we added the master override code as backup.
+  return currentPublicIP.startsWith('10.221.115.');
+}
+
+/* ═══════════════════════════════════════════════════════
+   SETTINGS TABLE INIT (runs once after Supabase connects)
+═══════════════════════════════════════════════════════ */
+async function ensureSettingsTable() {
+  if (!supaClient || !supaConnected) return;
+  // Try to insert default PIN if row doesn't exist
+  try {
+    await supaClient.from('webkrafta_settings').insert([
+      { key: 'admin_pin', value: getCeoPin(), updated_at: new Date().toISOString() }
+    ], { onConflict: 'key' }); // ignore if exists
+  } catch(e) { /* ignore duplicate */ }
+}
+
+async function testSupabaseConnection() {
+  setSupaStatus('pending', 'Testing…');
+  try {
+    const { error } = await supaClient.from('webkrafta_bookings').select('id', { count: 'exact', head: true });
+    if (error && !error.message.includes('does not exist')) {
+      setSupaStatus('disconnected', 'Error: ' + error.message);
+      showToast('❌ Connection failed: ' + error.message, true);
+    } else {
+      setSupaStatus('connected', 'Connected ✓');
+      showToast('✅ Supabase connection is working!');
+    }
+  } catch(e) {
+    setSupaStatus('disconnected', 'Failed: ' + e.message);
+    showToast('❌ ' + e.message, true);
+  }
+}
+
+function copySupabaseSQL() {
+  const sql = document.querySelector('pre').textContent;
+  navigator.clipboard.writeText(sql).then(() => showToast('📋 SQL copied to clipboard!')).catch(() => showToast('Select and copy the SQL manually.', true));
+}
+
+/* ═══════════════════════════════════════════════════════
+   BOOKING STORAGE — Supabase + localStorage fallback
+═══════════════════════════════════════════════════════ */
+async function supaInsertBooking(entry) {
+  if (!supaClient) return false;
+  try {
+    const { error } = await supaClient.from('webkrafta_bookings').insert([{
+      name: entry.name, biz: entry.biz, phone: entry.phone,
+      email: entry.email || null, plan: entry.plan, plan_id: entry.planId,
+      setup_fee: entry.setup, message: entry.message,
+      via_wa: entry.viaWa, from_mobile: entry.fromMobile
+    }]);
+    if (error) { console.warn('Supabase insert error:', error.message); return false; }
+    return true;
+  } catch(e) { console.warn('Supabase insert exception:', e.message); return false; }
+}
+
+async function supaGetBookings() {
+  if (!supaClient) return null;
+  try {
+    const { data, error } = await supaClient.from('webkrafta_bookings').select('*').order('created_at', { ascending: false }).limit(200);
+    if (error) { console.warn('Supabase read error:', error.message); return null; }
+    return data;
+  } catch(e) { return null; }
+}
+
+async function supaDeleteBooking(id) {
+  if (!supaClient) return false;
+  try {
+    const { error } = await supaClient.from('webkrafta_bookings').delete().eq('id', id);
+    if (error) { console.warn('Supabase delete error:', error.message); return false; }
+    return true;
+  } catch(e) { return false; }
+}
+
+// Local fallback
+function getLocalBookings() {
+  try { return JSON.parse(localStorage.getItem('wk_bookings_local') || '[]'); } catch(e) { return []; }
+}
+function saveLocalBooking(entry) {
+  const local = getLocalBookings();
+  local.unshift(entry);
+  try { localStorage.setItem('wk_bookings_local', JSON.stringify(local.slice(0, 100))); } catch(e) {}
+}
+
+async function renderBookingsList() {
+  const list = document.getElementById('bookings-list');
+  list.innerHTML = '<div style="text-align:center;color:var(--text3);font-size:14px;padding:32px 0;">⏳ Loading from Supabase…</div>';
+
+  // FORCE fetch from Supabase — this is the admin view, must show live data
+  let bookings = await supaGetBookings();
+
+  if (bookings === null || bookings.length === 0) {
+    // If Supabase is empty or failed, try local fallback but warn admin
+    bookings = getLocalBookings().map(b => ({
+      id: b.id, name: b.name, biz: b.biz, phone: b.phone,
+      email: b.email, plan: b.plan, plan_id: b.planId,
+      setup_fee: b.setup, message: b.message,
+      via_wa: b.viaWa, from_mobile: b.fromMobile,
+      created_at: b.timestamp
+    }));
+    if (bookings.length > 0) {
+      list.innerHTML = '<div style="margin-bottom:12px;padding:10px 14px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:8px;font-size:12px;color:var(--amber);">⚠️ Supabase is empty or not connected. Showing local fallback bookings. Go to Supabase tab and run the SQL setup.</div>';
+    }
+  } else {
+    // Supabase connected — also merge any local bookings that haven't been synced yet
+    const local = getLocalBookings();
+    if (local.length > 0) {
+      // Try to push local unsynced bookings to Supabase in background
+      local.forEach(async b => {
+        await supaInsertBooking(b);
+      });
+      // Clear local after attempt
+      localStorage.removeItem('wk_bookings_local');
+    }
+  }
+
+  if (!bookings || bookings.length === 0) {
+    list.innerHTML = '<div style="text-align:center;color:var(--text3);font-size:14px;padding:48px 0;">No bookings yet. They appear here after clients submit the form.</div>';
+    return;
+  }
+
+  const badge = `<div style="font-family:var(--font-mono);font-size:11px;color:var(--emerald);margin-bottom:16px;display:flex;align-items:center;gap:6px;">
+    <span style="width:7px;height:7px;border-radius:50%;background:var(--emerald);display:inline-block;"></span>
+    ${bookings.length} booking${bookings.length !== 1 ? 's' : ''} — ${supaConnected ? 'from Supabase' : 'local fallback'}
+  </div>`;
+
+  const html = bookings.map(b => {
+    const agent = AGENTS.find(a => a.id === (b.plan_id || b.planId));
+    const color = agent ? agent.color : '#7c3aed';
+    const date = new Date(b.created_at || b.timestamp).toLocaleString();
+    const deviceIcon = (b.from_mobile || b.fromMobile) ? '📱' : '💻';
+    const planDisplay = b.plan || 'N/A';
+    const emailDisplay = b.email || 'Not provided';
+    const msgDisplay = b.message || '—';
+    return `<div class="booking-entry" id="booking-${b.id}">
+      <div class="booking-entry-header">
+        <span class="booking-client-name">${escHtml(b.name)}</span>
+        <span class="booking-timestamp">${deviceIcon} ${date}</span>
+      </div>
+      <span class="booking-plan-badge" style="background:${hexToRgba(color,0.15)};color:${color};border:1px solid ${hexToRgba(color,0.3)}">${escHtml(planDisplay)}</span>
+      <div class="booking-details" style="margin-top:6px;">
+        🏢 ${escHtml(b.biz)} &nbsp;·&nbsp; 📱 ${escHtml(b.phone)} &nbsp;·&nbsp; 📧 ${escHtml(emailDisplay)}<br>
+        💬 ${escHtml(msgDisplay)}
+      </div>
+      <button class="booking-delete" onclick="deleteBookingEntry(${b.id})">🗑 Delete</button>
+    </div>`;
+  }).join('');
+
+  list.innerHTML = badge + html;
+}
+
+async function deleteBookingEntry(id) {
+  const ok = await supaDeleteBooking(id);
+  if (!ok) {
+    // Remove from local
+    const local = getLocalBookings().filter(b => b.id !== id);
+    try { localStorage.setItem('wk_bookings_local', JSON.stringify(local)); } catch(e) {}
+  }
+  const el = document.getElementById('booking-' + id);
+  if (el) el.remove();
+  showToast('🗑 Booking deleted.');
+}
+
+/* ═══════════════════════════════════════════════════════
+   AGENT DATA
 ═══════════════════════════════════════════════════════ */
 const AGENTS = [
   { id:1, tier:'Tier 1', name:'Basic Chat AI', color:'#7c3aed', setup:'₹25,000', monthly:'₹2,999',
@@ -716,9 +1412,9 @@ const AGENTS = [
     longDescription:'The AI Media Generator eliminates creative production bottlenecks. Feed it your brand kit and campaign brief and it produces scroll-stopping visuals automatically.',
     tags:['Image Generation','Video Creation','Ad Creatives','Brand Content'],
     benefits:['Produce 100+ ad creatives per campaign','Cut creative costs by 80%','A/B test at massive scale','Consistent brand identity'],
-    included:['Custom brand kit ingestion','Unlimited image generation','Short-form video generation','Ad creative variants','Weekly content batches'],
-    tools:['Instagram/Facebook Ads','Canva/Figma export','YouTube Shorts/Reels','Google Ads','Brand asset library'],
-    bestFor:['E-commerce','D2C Brands','Agencies','Influencers','Marketing Teams'] },
+    included:['Brand kit calibration','Batch image generation','Short-form video production','Ad creative variants','Monthly performance report'],
+    tools:['Canva Pro','Meta Ads upload','Google Display assets','Adobe Express','YouTube Shorts'],
+    bestFor:['D2C Brands','Performance Marketing','Digital Agencies','Influencers','FMCG'] },
   { id:10, tier:'Tier 10', name:'AI Research Agent', color:'#d946ef', setup:'₹2,50,000', monthly:'₹44,999',
     description:'A deep intelligence agent that conducts comprehensive market research, competitive analysis, and strategic intelligence — synthesizing data into decision-ready reports.',
     longDescription:'The AI Research Agent is your on-demand strategic intelligence team. Ask it to analyze a competitor or map a new market and it delivers a polished report within hours.',
@@ -755,62 +1451,33 @@ const FEATURES_DATA = [
 ];
 
 /* ═══════════════════════════════════════════════════════
-   LIVE SITE SETTINGS — pulled from Supabase, same for every visitor
+   STATE & PERSISTENCE
 ═══════════════════════════════════════════════════════ */
-const DEFAULT_SETTINGS = {
-  theme: { violet:'#7c3aed', violetLight:'#a855f7', cyan:'#06b6d4', bg:'#060612' },
-  founder: { name:'Your Name', title:'Founder & CEO, WebKrafta', bio:'Add your founder bio from Admin → Site Settings.', photo:'', enabled:true },
-  banner: { enabled:false, text:'🎉 Limited-time offer — ask us about launch pricing!', ctaText:'Book Demo', ctaLink:'' },
-  heroText: { l1:'Deploy', l2:'Intelligent Agents', l3:'That Work For You' },
-  logo: '',
-  agentVisibility: {},
-  agentPrices: {},
-  waMode: true,
-  waNumber: '',
-  animMode: 'helix',
-  customAnim: ''
-};
-let SETTINGS = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
-let bannerDismissed = false;
-
-async function loadSiteSettings() {
-  try {
-    const { data, error } = await supaClient.from('webkrafta_site_settings').select('data').eq('id', 1).maybeSingle();
-    if (!error && data && data.data) {
-      SETTINGS = { ...JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), ...data.data };
-    }
-  } catch(e) { console.warn('Could not load live settings, using defaults:', e.message); }
-}
-
-function getVisibility() { return SETTINGS.agentVisibility || {}; }
-function getActiveAgents() { const v = getVisibility(); return AGENTS.filter(a => v[a.id] !== false); }
-function getAgentPrice(agent) { const o = (SETTINGS.agentPrices||{})[agent.id]; return { setup: (o&&o.setup)||agent.setup, monthly: (o&&o.monthly)||agent.monthly }; }
-function getDisplayTier(agentId) { const a = getActiveAgents(); const i = a.findIndex(x => x.id === agentId); return i === -1 ? '' : `Tier ${i+1}`; }
-function getWaMode() { return SETTINGS.waMode !== false; }
-function getWaNumber() { return SETTINGS.waNumber || ''; }
-
-/* ═══════════════════════════════════════════════════════
-   BOOKING INSERT (Supabase) — customers can only insert, never read
-═══════════════════════════════════════════════════════ */
-async function supaInsertBooking(entry) {
-  if (!supaClient) return false;
-  try {
-    const { error } = await supaClient.from('webkrafta_bookings').insert([{
-      name: entry.name, biz: entry.biz, phone: entry.phone,
-      email: entry.email || null, plan: entry.plan, plan_id: entry.planId,
-      setup_fee: entry.setup, message: entry.message,
-      via_wa: entry.viaWa, from_mobile: entry.fromMobile
-    }]);
-    if (error) { console.warn('Supabase insert error:', error.message); return false; }
-    return true;
-  } catch(e) { console.warn('Supabase insert exception:', e.message); return false; }
-}
+const CEO_PIN_DEFAULT = '2025';
+function getCeoPin() { try { return localStorage.getItem('wk_ceo_pin') || CEO_PIN_DEFAULT; } catch(e) { return CEO_PIN_DEFAULT; } }
+function setCeoPin(p) { localStorage.setItem('wk_ceo_pin', p); }
 
 let currentAgentId = null;
 let carouselAnimId = null, cdAnimId = null, orbAnimId = null, wheelAnimId = null;
 let carouselAngle = 0, isHovering = false, isDragging = false, dragVelocity = 0, lastDragY = 0;
 let wheelSpinning = true, wheelAngle = 0, wheelAgentsOrdered = [];
 let cdAngle = 0, orbAngle = 0;
+
+function getVisibility() {
+  try { const s = localStorage.getItem('wk_agent_vis'); if (s) return JSON.parse(s); } catch(e) {}
+  const d = {}; AGENTS.forEach(a => d[a.id] = true); return d;
+}
+function setVisibility(v) { localStorage.setItem('wk_agent_vis', JSON.stringify(v)); }
+function getActiveAgents() { const v = getVisibility(); return AGENTS.filter(a => v[a.id] !== false); }
+
+function getPriceOverrides() { try { const s = localStorage.getItem('wk_prices'); if (s) return JSON.parse(s); } catch(e) {} return {}; }
+function setPriceOverrides(o) { localStorage.setItem('wk_prices', JSON.stringify(o)); }
+function getAgentPrice(agent) { const o = getPriceOverrides()[agent.id]; return { setup: (o&&o.setup)||agent.setup, monthly: (o&&o.monthly)||agent.monthly }; }
+function setAgentPrice(id, setup, monthly) { const o = getPriceOverrides(); o[id] = {setup,monthly}; setPriceOverrides(o); }
+function resetAgentPrice(id) { const o = getPriceOverrides(); delete o[id]; setPriceOverrides(o); }
+function isAgentPriceOverridden(id) { return !!getPriceOverrides()[id]; }
+
+function getDisplayTier(agentId) { const a = getActiveAgents(); const i = a.findIndex(x => x.id === agentId); return i === -1 ? '' : `Tier ${i+1}`; }
 
 /* ═══════════════════════════════════════════════════════
    CANVAS ART GENERATOR
@@ -1016,6 +1683,7 @@ function showFieldError(inputEl, errId, msg) {
 }
 function clearFieldError(el) {
   el.classList.remove('error');
+  // find sibling .field-error
   const parent = el.closest('.form-group');
   if (parent) { const fe = parent.querySelector('.field-error'); if(fe)fe.classList.remove('show'); }
 }
@@ -1058,6 +1726,7 @@ async function submitBooking() {
   const planId = parseInt(planSel.value);
   const message = document.getElementById('f-message').value.trim();
 
+  // Clear previous errors
   document.getElementById('form-error').style.display='none';
   ['f-name','f-biz','f-phone','f-email'].forEach(id=>{
     const el=document.getElementById(id); if(el){el.classList.remove('error');}
@@ -1067,6 +1736,7 @@ async function submitBooking() {
   });
 
   let hasError = false;
+
   if(!name){showFieldError(document.getElementById('f-name'),'err-name','Please enter your full name.');hasError=true;}
   if(!biz){showFieldError(document.getElementById('f-biz'),'err-biz','Please enter your business name.');hasError=true;}
   if(!validatePhone(phone)){showFieldError(document.getElementById('f-phone'),'err-phone','Phone must be exactly 10 digits.');hasError=true;}
@@ -1084,18 +1754,16 @@ async function submitBooking() {
   const setupFee = p ? p.setup : 'N/A';
 
   const entry = {
-    name, biz, phone,
+    id: Date.now(), name, biz, phone,
     email: email||'Not provided', plan: planText, planId,
     setup: setupFee, message: message||'Ready to get started!',
-    viaWa: getWaMode(),
+    timestamp: new Date().toISOString(), viaWa: getWaMode(),
     fromMobile: window.innerWidth<=768||('ontouchstart' in window)
   };
 
+  // Save to Supabase
   const supaOk = await supaInsertBooking(entry);
-  if (!supaOk) {
-    showToast('⚠️ Could not reach the database — please try again in a moment.', true);
-    return;
-  }
+  if(!supaOk) saveLocalBooking(entry); // fallback
 
   const waOn = getWaMode();
   const waNum = getWaNumber();
@@ -1114,16 +1782,161 @@ async function submitBooking() {
   ['f-name','f-biz','f-phone','f-email','f-message'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
 }
 
+/* ═══════════════════════════════════════════════════════
+   WA MODE & NUMBER
+═══════════════════════════════════════════════════════ */
+function getWaMode() { try{const s=localStorage.getItem('wk_wa_mode');return s!==null?JSON.parse(s):true;}catch(e){return true;} }
+function setWaMode(v) { localStorage.setItem('wk_wa_mode',JSON.stringify(v)); }
+function saveWaMode() { setWaMode(document.getElementById('cs-wa-enabled').checked); updateWaModeUI(); showToast(getWaMode()?'✅ WhatsApp ON':'🔒 WhatsApp OFF'); }
+function getWaNumber() { return localStorage.getItem('wk_wa_number')||''; }
+function saveWaNumber() {
+  const val = document.getElementById('cs-wa-number').value.trim();
+  if(!validatePhone(val)){showFieldError(document.getElementById('cs-wa-number'),'err-wa-number','Must be exactly 10 digits.');return;}
+  localStorage.setItem('wk_wa_number', val);
+  // Update support link
+  const link = document.getElementById('wa-support-link');
+  if(link) link.href = `https://wa.me/91${val}`;
+  showToast('✅ WhatsApp number saved: +91'+val);
+  updateWaModeUI();
+}
 function updateWaModeUI() {
   const on = getWaMode(), num = getWaNumber();
+  const el = document.getElementById('cs-wa-enabled'); if(el)el.checked=on;
+  const numEl = document.getElementById('cs-wa-number'); if(numEl&&num)numEl.value=num;
+  const status = document.getElementById('wa-mode-status');
+  if(status)status.textContent = on
+    ? (num ? `✅ ON — bookings send to WhatsApp +91${num}` : '⚠️ ON but no number saved — set it above.')
+    : '🔒 OFF — bookings stored in Supabase only, no WhatsApp message.';
   const btn = document.getElementById('btn-book-submit');
   const sub = document.getElementById('booking-sub-text');
   const note = document.getElementById('booking-save-note');
   if(btn){btn.textContent=on?'📲 Send via WhatsApp':'✅ Submit Booking';btn.style.background=on?'var(--wa-green)':'linear-gradient(135deg,var(--violet),var(--cyan))';}
   if(sub)sub.textContent=on?"Fill in your details — we'll confirm over WhatsApp within 2 hours.":"Your booking is saved securely in our database.";
   if(note)note.style.display=on?'none':'block';
+  // Support link
   const link = document.getElementById('wa-support-link');
   if(link)link.href = num ? `https://wa.me/91${num}` : '#';
+}
+
+/* ═══════════════════════════════════════════════════════
+   PIN & CEO DASHBOARD
+═══════════════════════════════════════════════════════ */
+function openPin() {
+  const ov=document.getElementById('pin-overlay');
+  ov.style.display='flex'; setTimeout(()=>{ov.classList.add('active');document.getElementById('pin-input').focus();},10);
+}
+function closePin() {
+  document.getElementById('pin-overlay').classList.remove('active');
+  document.getElementById('pin-input').value='';
+  document.getElementById('pin-error').style.display='none';
+  setTimeout(()=>{document.getElementById('pin-overlay').style.display='none';},300);
+}
+function closePinOnOverlay(e){if(e.target===document.getElementById('pin-overlay'))closePin();}
+async function verifyPin() {
+  const pin = document.getElementById('pin-input').value.trim();
+  const pinToCheck = adminPinFromSupabase || getCeoPin();
+
+  // 1. Check PIN
+  if (pin !== pinToCheck) {
+    document.getElementById('pin-error').textContent = 'Incorrect PIN. Please try again.';
+    document.getElementById('pin-error').style.display = 'block';
+    document.getElementById('pin-input').value = '';
+    document.getElementById('pin-input').focus();
+    return;
+  }
+
+  // 2. Check IP (as you requested)
+  await fetchPublicIP();
+  if (!isAdminIPAllowed()) {
+    // IP not matched — ask for Master Override
+    const master = prompt(
+      '⚠️ Network Mismatch Detected!\n\n' +
+      'Your current IP: ' + (currentPublicIP || 'Unknown') + '\n' +
+      'Admin network: 10.221.115.x\n\n' +
+      'If you are the real admin, enter your Master Override Code:'
+    );
+    if (master !== masterOverrideCode) {
+      alert('❌ Access Denied. Admin panel can only be opened from the authorized network or with the correct override code.');
+      closePin();
+      return;
+    }
+  }
+
+  // All checks passed
+  closePin();
+  openCeoDash();
+  showToast('⚡ CEO dashboard unlocked');
+}
+function openCeoDash() {
+  renderAgentControls(); renderSettingsTab();
+  switchCeoTab('bookings', document.querySelector('.ceo-tab'));
+  const ov=document.getElementById('ceo-overlay');
+  ov.style.display='flex'; setTimeout(()=>ov.classList.add('active'),10);
+  renderBookingsList();
+  // Load Supabase tab config
+  const cfg = getSupaConfig();
+  const urlEl=document.getElementById('cs-supa-url'); if(urlEl)urlEl.value=cfg.url;
+  const anonEl=document.getElementById('cs-supa-anon'); if(anonEl)anonEl.value=cfg.anon;
+}
+function closeCeoDash() {
+  document.getElementById('ceo-overlay').classList.remove('active');
+  setTimeout(()=>{document.getElementById('ceo-overlay').style.display='none';},300);
+}
+function closeCeoDashOnOverlay(e){if(e.target===document.getElementById('ceo-overlay'))closeCeoDash();}
+function switchCeoTab(tab, btn) {
+  document.querySelectorAll('.ceo-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.ceo-tab-content').forEach(c=>c.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  document.getElementById(`ceo-tab-${tab}`).classList.add('active');
+  if(tab==='accessibility')renderAccessibilityTab();
+}
+
+/* ═══════════════════════════════════════════════════════
+   AGENT CONTROL
+═══════════════════════════════════════════════════════ */
+function renderAgentControls() {
+  const vis=getVisibility();
+  document.getElementById('agent-control-list').innerHTML=AGENTS.map(agent=>{
+    const on=vis[agent.id]!==false;
+    const p=getAgentPrice(agent);
+    const ov=isAgentPriceOverridden(agent.id);
+    return `<div class="agent-row ${on?'':'disabled'}" id="agent-row-${agent.id}">
+      <div class="agent-row-top">
+        <div class="agent-row-left">
+          <span class="agent-color-dot" style="background:${agent.color}"></span>
+          <span class="agent-tier-num">${agent.tier}</span>
+          <span class="agent-row-name">${agent.name}</span>
+        </div>
+        <div class="agent-row-right">
+          <span class="agent-status-badge ${on?'status-active':'status-hidden'}" id="status-badge-${agent.id}">${on?'Active':'Hidden'}</span>
+          <label class="toggle-switch"><input type="checkbox" ${on?'checked':''} onchange="toggleAgent(${agent.id},this.checked)"><span class="toggle-slider"></span></label>
+        </div>
+      </div>
+      <div class="agent-row-pricing">
+        <div class="agent-price-field"><label>Setup Fee</label><input type="text" class="agent-price-input" id="price-setup-${agent.id}" value="${escHtml(p.setup)}" onchange="saveAgentPrice(${agent.id})"></div>
+        <div class="agent-price-field"><label>Monthly</label><input type="text" class="agent-price-input" id="price-monthly-${agent.id}" value="${escHtml(p.monthly)}" onchange="saveAgentPrice(${agent.id})"></div>
+        ${ov?`<button class="agent-price-reset" onclick="resetAgentPriceUI(${agent.id})">↺ Reset</button>`:''}
+        <span class="agent-price-saved-note" id="price-saved-${agent.id}">✓ Saved</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+function saveAgentPrice(id) {
+  const s=document.getElementById(`price-setup-${id}`).value.trim();
+  const m=document.getElementById(`price-monthly-${id}`).value.trim();
+  if(!s||!m){showToast('⚠️ Price fields cannot be empty.',true);renderAgentControls();return;}
+  setAgentPrice(id,s,m); refreshAllPriceDisplays();
+  const note=document.getElementById(`price-saved-${id}`);
+  if(note){note.classList.add('show');setTimeout(()=>note.classList.remove('show'),1800);}
+  renderAgentControls();
+}
+function resetAgentPriceUI(id){resetAgentPrice(id);refreshAllPriceDisplays();renderAgentControls();showToast('↺ Price reset to default.');}
+function refreshAllPriceDisplays(){buildCarousel();buildAgentList();populateBookingDropdown();}
+function toggleAgent(id,on){
+  const vis=getVisibility();vis[id]=on;setVisibility(vis);
+  const row=document.getElementById(`agent-row-${id}`);if(row)row.classList.toggle('disabled',!on);
+  const badge=document.getElementById(`status-badge-${id}`);if(badge){badge.textContent=on?'Active':'Hidden';badge.className=`agent-status-badge ${on?'status-active':'status-hidden'}`;}
+  buildCarousel();buildAgentList();populateBookingDropdown();
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -1156,11 +1969,162 @@ function buildAgentList() {
 }
 
 /* ═══════════════════════════════════════════════════════
-   THEME (applied from live settings)
+   100+ THEME PRESETS
 ═══════════════════════════════════════════════════════ */
+const THEME_PRESETS = [
+  // ── DARK ──
+  {g:'dark',n:'🌌 Violet Nova',v:'#7c3aed',vl:'#a855f7',c:'#06b6d4',b:'#060612'},
+  {g:'dark',n:'🌑 Midnight Sapphire',v:'#3b82f6',vl:'#60a5fa',c:'#9333ea',b:'#05070f'},
+  {g:'dark',n:'🔥 Sunset Ember',v:'#f43f5e',vl:'#fb7185',c:'#f59e0b',b:'#0f0710'},
+  {g:'dark',n:'🌿 Emerald Tide',v:'#10b981',vl:'#34d399',c:'#0ea5e9',b:'#05100f'},
+  {g:'dark',n:'⚡ Electric Citrus',v:'#f97316',vl:'#fb923c',c:'#84cc16',b:'#120a05'},
+  {g:'dark',n:'💜 Fuchsia Dream',v:'#d946ef',vl:'#e879f9',c:'#3b82f6',b:'#0b0512'},
+  {g:'dark',n:'🌊 Deep Ocean',v:'#0ea5e9',vl:'#38bdf8',c:'#10b981',b:'#030d14'},
+  {g:'dark',n:'🖤 Obsidian Frost',v:'#6366f1',vl:'#818cf8',c:'#22d3ee',b:'#040410'},
+  {g:'dark',n:'🌌 Cosmic Plum',v:'#9333ea',vl:'#a78bfa',c:'#c026d3',b:'#0a0614'},
+  {g:'dark',n:'🩸 Crimson Void',v:'#dc2626',vl:'#ef4444',c:'#7c3aed',b:'#0c0505'},
+  {g:'dark',n:'🧊 Arctic Steel',v:'#0284c7',vl:'#38bdf8',c:'#a3e635',b:'#040a0f'},
+  {g:'dark',n:'🟣 Neon Orchid',v:'#c026d3',vl:'#e879f9',c:'#22d3ee',b:'#0a0510'},
+  {g:'dark',n:'🐉 Jade Shadow',v:'#059669',vl:'#10b981',c:'#3b82f6',b:'#040f0c'},
+  {g:'dark',n:'🌋 Molten Slate',v:'#ea580c',vl:'#fb923c',c:'#facc15',b:'#0d0704'},
+  {g:'dark',n:'🦇 Vampire Rose',v:'#be123c',vl:'#e11d48',c:'#6366f1',b:'#0a0407'},
+  {g:'dark',n:'🎭 Noir Purple',v:'#7c3aed',vl:'#8b5cf6',c:'#ec4899',b:'#08050f'},
+  {g:'dark',n:'🌠 Starfield Blue',v:'#1d4ed8',vl:'#3b82f6',c:'#7c3aed',b:'#02050f'},
+  {g:'dark',n:'🦠 Toxic Green',v:'#16a34a',vl:'#22c55e',c:'#ca8a04',b:'#050f08'},
+  {g:'dark',n:'🔮 Crystal Aura',v:'#8b5cf6',vl:'#a78bfa',c:'#34d399',b:'#07050f'},
+  {g:'dark',n:'🌐 Neon Grid',v:'#06b6d4',vl:'#22d3ee',c:'#a855f7',b:'#030a10'},
+  {g:'dark',n:'☄️ Comet Trail',v:'#f59e0b',vl:'#fcd34d',c:'#7c3aed',b:'#100c03'},
+  {g:'dark',n:'🐬 Midnight Teal',v:'#0f766e',vl:'#14b8a6',c:'#6366f1',b:'#030f0e'},
+  {g:'dark',n:'🎸 Rock Black',v:'#ef4444',vl:'#f87171',c:'#facc15',b:'#090101'},
+  {g:'dark',n:'🫧 Frozen Violet',v:'#7c3aed',vl:'#c4b5fd',c:'#a5f3fc',b:'#050410'},
+  {g:'dark',n:'🌺 Hibiscus Night',v:'#e11d48',vl:'#fb7185',c:'#a855f7',b:'#0d0407'},
+  {g:'dark',n:'💎 Diamond Dark',v:'#0ea5e9',vl:'#7dd3fc',c:'#f0abfc',b:'#030810'},
+  {g:'dark',n:'🔋 Matrix Green',v:'#15803d',vl:'#4ade80',c:'#22d3ee',b:'#030f07'},
+  {g:'dark',n:'🌑 Charcoal Rose',v:'#f43f5e',vl:'#fda4af',c:'#374151',b:'#0a0406'},
+  {g:'dark',n:'🪐 Saturn Gold',v:'#ca8a04',vl:'#fbbf24',c:'#9333ea',b:'#100d03'},
+  {g:'dark',n:'🔴 Lava Dark',v:'#dc2626',vl:'#f87171',c:'#f97316',b:'#100203'},
+  {g:'dark',n:'🌀 Vortex Cyan',v:'#0891b2',vl:'#22d3ee',c:'#7c3aed',b:'#030d10'},
+  {g:'dark',n:'🎆 Firework Black',v:'#d946ef',vl:'#f0abfc',c:'#fbbf24',b:'#0a0210'},
+  {g:'dark',n:'🦅 Falcon Blue',v:'#1e40af',vl:'#3b82f6',c:'#10b981',b:'#030710'},
+  {g:'dark',n:'🌒 Lunar Black',v:'#475569',vl:'#94a3b8',c:'#7c3aed',b:'#050508'},
+  {g:'dark',n:'🍀 Clover Dark',v:'#166534',vl:'#22c55e',c:'#0d9488',b:'#040f06'},
+  // ── MID ──
+  {g:'mid',n:'🍂 Warm Mocha',v:'#b45309',vl:'#d97706',c:'#f59e0b',b:'#1a0f05'},
+  {g:'mid',n:'🌸 Rose Garden',v:'#e11d48',vl:'#f43f5e',c:'#f97316',b:'#180810'},
+  {g:'mid',n:'🦚 Teal Forest',v:'#0d9488',vl:'#14b8a6',c:'#84cc16',b:'#06120f'},
+  {g:'mid',n:'🫐 Blueberry Mist',v:'#4f46e5',vl:'#6366f1',c:'#8b5cf6',b:'#0d0d1f'},
+  {g:'mid',n:'🌙 Slate Dusk',v:'#64748b',vl:'#94a3b8',c:'#06b6d4',b:'#0f1117'},
+  {g:'mid',n:'🧡 Amber Haze',v:'#ea580c',vl:'#f97316',c:'#eab308',b:'#160c04'},
+  {g:'mid',n:'🌺 Coral Reef',v:'#f43f5e',vl:'#fb7185',c:'#06b6d4',b:'#110a0a'},
+  {g:'mid',n:'🍁 Autumn Rust',v:'#c2410c',vl:'#ea580c',c:'#eab308',b:'#170a03'},
+  {g:'mid',n:'🌵 Desert Sage',v:'#4d7c0f',vl:'#65a30d',c:'#0d9488',b:'#0c1006'},
+  {g:'mid',n:'🍇 Grape Fizz',v:'#7e22ce',vl:'#a855f7',c:'#db2777',b:'#12071a'},
+  {g:'mid',n:'🦋 Indigo Bloom',v:'#4338ca',vl:'#6366f1',c:'#0ea5e9',b:'#0a0a1c'},
+  {g:'mid',n:'🥀 Dusty Wine',v:'#9f1239',vl:'#be123c',c:'#b45309',b:'#160709'},
+  {g:'mid',n:'🐚 Copper Shell',v:'#b45309',vl:'#d97706',c:'#0891b2',b:'#170e05'},
+  {g:'mid',n:'🌘 Charcoal Plum',v:'#6d28d9',vl:'#8b5cf6',c:'#0891b2',b:'#0f0d17'},
+  {g:'mid',n:'🍄 Umber Grove',v:'#78350f',vl:'#92400e',c:'#4d7c0f',b:'#120c07'},
+  {g:'mid',n:'🌊 Aqua Dusk',v:'#0e7490',vl:'#06b6d4',c:'#7c3aed',b:'#060f12'},
+  {g:'mid',n:'🫦 Berry Bliss',v:'#9d174d',vl:'#db2777',c:'#7c3aed',b:'#130610'},
+  {g:'mid',n:'🧬 Bio Cyan',v:'#0f766e',vl:'#14b8a6',c:'#84cc16',b:'#061210'},
+  {g:'mid',n:'🌾 Golden Wheat',v:'#92400e',vl:'#b45309',c:'#065f46',b:'#120d05'},
+  {g:'mid',n:'🦎 Forest Lizard',v:'#166534',vl:'#15803d',c:'#b45309',b:'#081008'},
+  {g:'mid',n:'🌩 Storm Slate',v:'#334155',vl:'#64748b',c:'#06b6d4',b:'#0a0e14'},
+  {g:'mid',n:'🫀 Deep Red Mid',v:'#b91c1c',vl:'#dc2626',c:'#0891b2',b:'#120707'},
+  {g:'mid',n:'🎃 Pumpkin Spice',v:'#c2410c',vl:'#f97316',c:'#7c3aed',b:'#140a04'},
+  {g:'mid',n:'🎄 Christmas Pine',v:'#166534',vl:'#15803d',c:'#b91c1c',b:'#070f08'},
+  {g:'mid',n:'🌏 Earth Tone Mid',v:'#78350f',vl:'#a16207',c:'#0f766e',b:'#100d07'},
+  {g:'mid',n:'🦁 Lion Gold',v:'#a16207',vl:'#d97706',c:'#7c3aed',b:'#120e04'},
+  {g:'mid',n:'🦭 Arctic Seal',v:'#1d4ed8',vl:'#3b82f6',c:'#0d9488',b:'#06090f'},
+  {g:'mid',n:'🌑 Ash Violet',v:'#6d28d9',vl:'#7c3aed',c:'#475569',b:'#0c0b10'},
+  {g:'mid',n:'🌺 Tropical Dark',v:'#15803d',vl:'#22c55e',c:'#d97706',b:'#060f08'},
+  {g:'mid',n:'🐠 Reef Orange',v:'#ea580c',vl:'#f97316',c:'#0891b2',b:'#120a04'},
+  // ── LIGHT ──
+  {g:'light',n:'☀️ Sandy Brown',v:'#b45309',vl:'#d97706',c:'#0ea5e9',b:'#fdf6ec'},
+  {g:'light',n:'🌷 Peach Blossom',v:'#e11d48',vl:'#f43f5e',c:'#7c3aed',b:'#fff5f5'},
+  {g:'light',n:'🌿 Sage Meadow',v:'#15803d',vl:'#22c55e',c:'#0ea5e9',b:'#f0fdf4'},
+  {g:'light',n:'💙 Sky Day',v:'#1d4ed8',vl:'#3b82f6',c:'#7c3aed',b:'#eff6ff'},
+  {g:'light',n:'🟤 Warm Caramel',v:'#92400e',vl:'#b45309',c:'#0f766e',b:'#fef3c7'},
+  {g:'light',n:'🌸 Lavender Cream',v:'#7c3aed',vl:'#a855f7',c:'#ec4899',b:'#faf5ff'},
+  {g:'light',n:'🌾 Wheat Field',v:'#a16207',vl:'#ca8a04',c:'#0d9488',b:'#fdfaf0'},
+  {g:'light',n:'🩵 Powder Blue',v:'#0369a1',vl:'#0284c7',c:'#7c3aed',b:'#f0f9ff'},
+  {g:'light',n:'🌼 Buttercream',v:'#a16207',vl:'#ca8a04',c:'#be185d',b:'#fffbeb'},
+  {g:'light',n:'🍑 Apricot Glow',v:'#c2410c',vl:'#ea580c',c:'#0891b2',b:'#fff7ed'},
+  {g:'light',n:'🌫️ Mist Grey',v:'#475569',vl:'#64748b',c:'#0891b2',b:'#f8fafc'},
+  {g:'light',n:'🌹 Blush Petal',v:'#be185d',vl:'#db2777',c:'#7c3aed',b:'#fdf2f8'},
+  {g:'light',n:'🌊 Seafoam Light',v:'#0f766e',vl:'#14b8a6',c:'#0284c7',b:'#ecfeff'},
+  {g:'light',n:'🍋 Citrus Cream',v:'#a16207',vl:'#eab308',c:'#65a30d',b:'#fefce8'},
+  {g:'light',n:'💐 Lilac Fields',v:'#7c3aed',vl:'#9333ea',c:'#0891b2',b:'#f5f3ff'},
+  {g:'light',n:'🌤 Cerulean Dawn',v:'#0284c7',vl:'#38bdf8',c:'#7c3aed',b:'#f0f9ff'},
+  {g:'light',n:'🍓 Strawberry Milk',v:'#be123c',vl:'#e11d48',c:'#0d9488',b:'#fff1f2'},
+  {g:'light',n:'🍈 Melon Cream',v:'#15803d',vl:'#4ade80',c:'#d97706',b:'#f0fdf4'},
+  {g:'light',n:'🫧 Soap Bubble',v:'#7c3aed',vl:'#c4b5fd',c:'#22d3ee',b:'#fafafa'},
+  {g:'light',n:'🌻 Sunflower',v:'#a16207',vl:'#fbbf24',c:'#15803d',b:'#fffde7'},
+  {g:'light',n:'🍀 Fresh Mint',v:'#065f46',vl:'#10b981',c:'#0284c7',b:'#ecfdf5'},
+  {g:'light',n:'🌙 Moon Glow',v:'#6d28d9',vl:'#8b5cf6',c:'#0284c7',b:'#f5f3ff'},
+  {g:'light',n:'🎀 Cotton Candy',v:'#db2777',vl:'#ec4899',c:'#7c3aed',b:'#fdf4ff'},
+  {g:'light',n:'🧁 Vanilla Frost',v:'#92400e',vl:'#d97706',c:'#7c3aed',b:'#fffbf0'},
+  {g:'light',n:'🌊 Morning Sea',v:'#0369a1',vl:'#0ea5e9',c:'#0f766e',b:'#e0f2fe'},
+  {g:'light',n:'🌱 Spring Green',v:'#166534',vl:'#16a34a',c:'#b45309',b:'#f0fdf4'},
+  {g:'light',n:'🎠 Pastel Carnival',v:'#9333ea',vl:'#d946ef',c:'#f59e0b',b:'#fdf4ff'},
+  {g:'light',n:'🍦 Soft Serve',v:'#c2410c',vl:'#fb923c',c:'#7c3aed',b:'#fff7f0'},
+  {g:'light',n:'🌺 Cherry Blossom',v:'#be185d',vl:'#f472b6',c:'#0d9488',b:'#fdf2f8'},
+  {g:'light',n:'🏔 Mountain Snow',v:'#1e40af',vl:'#60a5fa',c:'#0f766e',b:'#f8fafc'},
+];
+
+let activeFilterGroup = 'all';
+function filterPresets(group) {
+  activeFilterGroup = group;
+  renderThemePresets();
+}
+function renderThemePresets() {
+  const row = document.getElementById('theme-preset-row');
+  if(!row) return;
+  const filtered = activeFilterGroup === 'all' ? THEME_PRESETS : THEME_PRESETS.filter(p=>p.g===activeFilterGroup);
+  const groups = [{key:'dark',label:'🌑 Dark'},{key:'mid',label:'🌗 Mid'},{key:'light',label:'☀️ Light'}];
+  let html = '';
+  if(activeFilterGroup === 'all') {
+    groups.forEach(g => {
+      const gp = filtered.filter(p=>p.g===g.key);
+      if(!gp.length)return;
+      html += `<div style="width:100%;margin:6px 0 4px;font-size:10px;font-family:var(--font-mono);color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;">${g.label} (${gp.length})</div>`;
+      gp.forEach(p => {
+        const i = THEME_PRESETS.indexOf(p);
+        const isLight = p.g === 'light';
+        html += `<button type="button" class="theme-preset-swatch" style="${isLight?'background:'+p.b+';border-color:rgba(0,0,0,0.15);color:#333;':''}" onclick="applyThemePreset(${i})">
+          <span class="theme-preset-dot" style="background:linear-gradient(135deg,${p.v},${p.c})"></span>${p.n}
+        </button>`;
+      });
+    });
+  } else {
+    filtered.forEach(p => {
+      const i = THEME_PRESETS.indexOf(p);
+      const isLight = p.g === 'light';
+      html += `<button type="button" class="theme-preset-swatch" style="${isLight?'background:'+p.b+';border-color:rgba(0,0,0,0.15);color:#333;':''}" onclick="applyThemePreset(${i})">
+        <span class="theme-preset-dot" style="background:linear-gradient(135deg,${p.v},${p.c})"></span>${p.n}
+      </button>`;
+    });
+  }
+  row.innerHTML = html || '<span style="color:var(--text3);font-size:13px;">No presets in this group.</span>';
+}
+function applyThemePreset(i) {
+  const p = THEME_PRESETS[i];
+  document.getElementById('cs-color-violet').value = p.v;
+  document.getElementById('cs-color-violet-light').value = p.vl;
+  document.getElementById('cs-color-cyan').value = p.c;
+  document.getElementById('cs-color-bg').value = p.b;
+  saveThemeSettings();
+}
+
+/* ═══════════════════════════════════════════════════════
+   THEME
+═══════════════════════════════════════════════════════ */
+const DEFAULT_THEME = {violet:'#7c3aed',violetLight:'#a855f7',cyan:'#06b6d4',bg:'#060612'};
+function getTheme() { try{const s=localStorage.getItem('wk_theme');if(s)return{...DEFAULT_THEME,...JSON.parse(s)};}catch(e){}return{...DEFAULT_THEME}; }
+function setTheme(d) { localStorage.setItem('wk_theme',JSON.stringify(d)); }
 function isLightColor(hex) { if(!hex||hex.length<7)return false; const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); return(r*0.299+g*0.587+b*0.114)>128; }
 function applyTheme() {
-  const t=SETTINGS.theme; const root=document.documentElement.style;
+  const t=getTheme(); const root=document.documentElement.style;
   root.setProperty('--violet',t.violet); root.setProperty('--violet-light',t.violetLight);
   root.setProperty('--cyan',t.cyan); root.setProperty('--bg',t.bg);
   if(isLightColor(t.bg)){
@@ -1173,14 +2137,36 @@ function applyTheme() {
     root.setProperty('--border','rgba(255,255,255,0.08)'); root.setProperty('--border2','rgba(255,255,255,0.14)');
   }
 }
+function saveThemeSettings() {
+  setTheme({violet:document.getElementById('cs-color-violet').value,violetLight:document.getElementById('cs-color-violet-light').value,cyan:document.getElementById('cs-color-cyan').value,bg:document.getElementById('cs-color-bg').value});
+  applyTheme(); showToast('✅ Theme colors updated!');
+}
+
+/* ═══════════════════════════════════════════════════════
+   LOGO
+═══════════════════════════════════════════════════════ */
+function getLogo() { try{return localStorage.getItem('wk_logo')||'';}catch(e){return '';} }
 function applyLogo() {
-  const logo=SETTINGS.logo;
+  const logo=getLogo();
   const nav=document.getElementById('nav-logo'),foot=document.getElementById('footer-logo');
   if(logo){nav.innerHTML=`<img src="${logo}" alt="WebKrafta" style="height:32px;display:block;">`;foot.innerHTML=`<img src="${logo}" alt="WebKrafta" style="height:26px;display:inline-block;">`;}
   else{nav.textContent='WebKrafta';foot.textContent='WebKrafta';}
 }
+function saveLogoSettings() {
+  const file=document.getElementById('cs-logo-file').files[0];
+  if(!file){showToast('Choose an image file first.',true);return;}
+  const r=new FileReader();r.onload=e=>{localStorage.setItem('wk_logo',e.target.result);applyLogo();showToast('✅ Logo updated!');};r.readAsDataURL(file);
+}
+function resetLogoSettings(){localStorage.removeItem('wk_logo');applyLogo();showToast('↺ Logo reset.');}
+
+/* ═══════════════════════════════════════════════════════
+   FOUNDER
+═══════════════════════════════════════════════════════ */
+const DEF_FOUNDER={name:'Your Name',title:'Founder & CEO, WebKrafta',bio:'Add your founder bio from Admin → Site Settings.',photo:'',enabled:true};
+function getFounder(){try{const s=localStorage.getItem('wk_founder');if(s)return{...DEF_FOUNDER,...JSON.parse(s)};}catch(e){}return{...DEF_FOUNDER};}
+function setFounder(d){localStorage.setItem('wk_founder',JSON.stringify(d));}
 function renderFounder(){
-  const f=SETTINGS.founder;const sec=document.getElementById('founder-section');
+  const f=getFounder();const sec=document.getElementById('founder-section');
   if(!f.enabled){sec.style.display='none';return;}sec.style.display='';
   document.getElementById('founder-name').textContent=f.name;
   document.getElementById('founder-title').textContent=f.title;
@@ -1189,8 +2175,26 @@ function renderFounder(){
   if(f.photo){av.innerHTML=`<img src="${f.photo}" alt="${escHtml(f.name)}">`;}
   else{const ini=f.name.trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase();av.innerHTML='';av.textContent=ini||'CEO';}
 }
+function saveFounderSettings(){
+  const cur=getFounder();
+  const name=document.getElementById('cs-founder-name').value.trim()||DEF_FOUNDER.name;
+  const title=document.getElementById('cs-founder-title').value.trim()||DEF_FOUNDER.title;
+  const bio=document.getElementById('cs-founder-bio').value.trim()||DEF_FOUNDER.bio;
+  const enabled=document.getElementById('cs-founder-enabled').checked;
+  const file=document.getElementById('cs-founder-photo').files[0];
+  const finish=photo=>{setFounder({name,title,bio,enabled,photo:photo!==undefined?photo:cur.photo});renderFounder();showToast('✅ Founder info saved!');document.getElementById('cs-founder-photo').value='';};
+  if(file){const r=new FileReader();r.onload=e=>finish(e.target.result);r.readAsDataURL(file);}else finish(undefined);
+}
+
+/* ═══════════════════════════════════════════════════════
+   BANNER
+═══════════════════════════════════════════════════════ */
+const DEF_BANNER={enabled:false,text:'🎉 Limited-time offer — ask us about launch pricing!',ctaText:'Book Demo',ctaLink:''};
+let bannerDismissed=false;
+function getBanner(){try{const s=localStorage.getItem('wk_banner');if(s)return{...DEF_BANNER,...JSON.parse(s)};}catch(e){}return{...DEF_BANNER};}
+function setBanner(d){localStorage.setItem('wk_banner',JSON.stringify(d));}
 function renderBanner(){
-  const b=SETTINGS.banner;const bar=document.getElementById('promo-banner');
+  const b=getBanner();const bar=document.getElementById('promo-banner');
   if(!b.enabled||bannerDismissed){bar.style.display='none';document.body.classList.remove('banner-active');return;}
   bar.style.display='flex';document.body.classList.add('banner-active');
   document.getElementById('promo-banner-text').textContent=b.text;
@@ -1199,14 +2203,81 @@ function renderBanner(){
   else cta.style.display='none';
 }
 function dismissBanner(){bannerDismissed=true;document.getElementById('promo-banner').style.display='none';document.body.classList.remove('banner-active');}
+function saveBannerSettings(){
+  setBanner({enabled:document.getElementById('cs-banner-enabled').checked,text:document.getElementById('cs-banner-text').value.trim()||DEF_BANNER.text,ctaText:document.getElementById('cs-banner-cta').value.trim(),ctaLink:document.getElementById('cs-banner-link').value.trim()});
+  bannerDismissed=false;renderBanner();showToast('✅ Banner saved!');
+}
+
+/* ═══════════════════════════════════════════════════════
+   HERO TEXT
+═══════════════════════════════════════════════════════ */
+function getHeroText(){try{const s=localStorage.getItem('wk_hero_text');if(s)return JSON.parse(s);}catch(e){}return{l1:'Deploy',l2:'Intelligent Agents',l3:'That Work For You'};}
 function applyHeroText(){
-  const h=SETTINGS.heroText;
+  const h=getHeroText();
   document.getElementById('hero-heading').innerHTML=`${escHtml(h.l1)} <span class="hero-highlight">${escHtml(h.l2)}</span> ${escHtml(h.l3)}`;
+  document.getElementById('hero-heading').setAttribute('onclick','handleHeroTap(event)');
+}
+function saveHeroText(){
+  const l1=document.getElementById('cs-hero-line1').value.trim()||'Deploy';
+  const l2=document.getElementById('cs-hero-line2').value.trim()||'Intelligent Agents';
+  const l3=document.getElementById('cs-hero-line3').value.trim()||'That Work For You';
+  localStorage.setItem('wk_hero_text',JSON.stringify({l1,l2,l3}));
+  applyHeroText();showToast('✅ Hero headline saved!');
+}
+
+/* ═══════════════════════════════════════════════════════
+   PIN
+═══════════════════════════════════════════════════════ */
+async function saveCeoPin(){
+  const v = document.getElementById('cs-new-pin').value.trim();
+  if(v.length<6){showToast('PIN must be at least 6 characters.',true);return;}
+  setCeoPin(v); // localStorage
+  document.getElementById('cs-new-pin').value='';
+  // Also save to Supabase so it syncs to all your devices
+  const ok = await saveAdminPinToSupabase(v);
+  if (ok) {
+    showToast('✅ Admin PIN updated & synced to Supabase!');
+  } else {
+    showToast('✅ PIN saved locally. Supabase sync failed — check connection.', true);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   SETTINGS TAB RENDER
+═══════════════════════════════════════════════════════ */
+function renderSettingsTab(){
+  const t=getTheme();
+  const cv=document.getElementById('cs-color-violet');if(cv)cv.value=t.violet;
+  const cvl=document.getElementById('cs-color-violet-light');if(cvl)cvl.value=t.violetLight;
+  const cc=document.getElementById('cs-color-cyan');if(cc)cc.value=t.cyan;
+  const cb=document.getElementById('cs-color-bg');if(cb)cb.value=t.bg;
+  const f=getFounder();
+  const cfe=document.getElementById('cs-founder-enabled');if(cfe)cfe.checked=f.enabled;
+  const cfn=document.getElementById('cs-founder-name');if(cfn)cfn.value=f.name;
+  const cft=document.getElementById('cs-founder-title');if(cft)cft.value=f.title;
+  const cfb=document.getElementById('cs-founder-bio');if(cfb)cfb.value=f.bio;
+  const b=getBanner();
+  const cbe=document.getElementById('cs-banner-enabled');if(cbe)cbe.checked=b.enabled;
+  const cbt=document.getElementById('cs-banner-text');if(cbt)cbt.value=b.text;
+  const cbc=document.getElementById('cs-banner-cta');if(cbc)cbc.value=b.ctaText;
+  const cbl=document.getElementById('cs-banner-link');if(cbl)cbl.value=b.ctaLink;
+  const ht=getHeroText();
+  const h1=document.getElementById('cs-hero-line1');if(h1)h1.value=ht.l1;
+  const h2=document.getElementById('cs-hero-line2');if(h2)h2.value=ht.l2;
+  const h3=document.getElementById('cs-hero-line3');if(h3)h3.value=ht.l3;
+  renderThemePresets();
+}
+function resetAllSiteSettings(){
+  ['wk_theme','wk_founder','wk_banner','wk_logo','wk_hero_text'].forEach(k=>localStorage.removeItem(k));
+  applyTheme();renderFounder();bannerDismissed=false;renderBanner();applyLogo();applyHeroText();renderSettingsTab();
+  showToast('↺ Design reset to default.');
 }
 
 /* ═══════════════════════════════════════════════════════
    ANIMATION MODE
 ═══════════════════════════════════════════════════════ */
+function getAnimMode(){try{return localStorage.getItem('wk_anim_mode')||'helix';}catch(e){return 'helix';}}
+function setAnimModeStore(m){localStorage.setItem('wk_anim_mode',m);}
 function isMobile(){return window.innerWidth<=768;}
 function stopAllAnimations(){
   if(carouselAnimId){cancelAnimationFrame(carouselAnimId);carouselAnimId=null;}
@@ -1214,9 +2285,18 @@ function stopAllAnimations(){
   if(orbAnimId){cancelAnimationFrame(orbAnimId);orbAnimId=null;}
   if(wheelAnimId){cancelAnimationFrame(wheelAnimId);wheelAnimId=null;}
 }
+function setAnimMode(mode){
+  setAnimModeStore(mode);
+  // Show/hide custom code panel
+  const cpanel=document.getElementById('custom-anim-panel');
+  if(cpanel)cpanel.style.display=mode==='custom'?'block':'none';
+  applyAnimMode();updateAnimModeUI();
+  const labels={helix:'🌀 Helix carousel activated.',cd:'💿 CD Disc animation activated.',orbital:'🪐 Orbital system activated.',wheel:'🎡 Gold Wheel Spin activated.',custom:'✨ Custom animation mode active.'};
+  showToast(labels[mode]||'Animation updated.');
+}
 function applyAnimMode(){
   stopAllAnimations();
-  const mode=isMobile()?'mobile-grid':(SETTINGS.animMode||'helix');
+  const mode=isMobile()?'mobile-grid':getAnimMode();
   const helix=document.getElementById('carousel-section');
   const cd=document.getElementById('cd-anim-section');
   const orb=document.getElementById('orbital-anim-section');
@@ -1239,11 +2319,22 @@ function applyAnimMode(){
   else if(mode==='wheel'){wheel.classList.add('active');buildWheel();}
   else if(mode==='custom'){helix.style.display='';applyCustomAnimation();if(!isMobile())buildMobileGrid();}
 }
+function updateAnimModeUI(){
+  const mode=getAnimMode();
+  document.querySelectorAll('.anim-preview-btn').forEach(b=>b.classList.remove('selected'));
+  const btn=document.getElementById('anim-btn-'+mode);if(btn)btn.classList.add('selected');
+  const cp=document.getElementById('custom-anim-panel');if(cp)cp.style.display=mode==='custom'?'block':'none';
+  // Load saved custom code
+  const saved=localStorage.getItem('wk_custom_anim');
+  const ta=document.getElementById('custom-anim-code');if(ta&&saved)ta.value=saved;
+}
 
-/* ── CUSTOM ANIMATION (rendered from saved settings, read-only here) ── */
+/* ── CUSTOM ANIMATION INJECTOR ── */
+let customAnimInjected = false;
 function applyCustomAnimation(){
-  const code=(SETTINGS.customAnim||'').trim();
-  if(!code)return;
+  const code=document.getElementById('custom-anim-code').value.trim();
+  if(!code){showToast('⚠️ No animation code pasted.',true);return;}
+  // Inject into custom section placeholder
   let cont=document.getElementById('custom-anim-host');
   if(!cont){
     cont=document.createElement('div');cont.id='custom-anim-host';
@@ -1251,12 +2342,27 @@ function applyCustomAnimation(){
     helix.parentNode.insertBefore(cont,helix.nextSibling);
   }
   cont.innerHTML=code;
+  // Execute any scripts
   cont.querySelectorAll('script').forEach(old=>{
     const s=document.createElement('script');
     Array.from(old.attributes).forEach(a=>s.setAttribute(a.name,a.value));
     s.textContent=old.textContent;
     old.parentNode.replaceChild(s,old);
   });
+  customAnimInjected=true;
+  showToast('▶ Custom animation running!');
+}
+function saveCustomAnimation(){
+  const code=document.getElementById('custom-anim-code').value.trim();
+  localStorage.setItem('wk_custom_anim',code);
+  showToast('💾 Custom animation saved! It will load automatically.');
+}
+function clearCustomAnimation(){
+  localStorage.removeItem('wk_custom_anim');
+  const cont=document.getElementById('custom-anim-host');if(cont)cont.innerHTML='';
+  document.getElementById('custom-anim-code').value='';
+  customAnimInjected=false;
+  showToast('✕ Custom animation cleared.');
 }
 
 /* ── MOBILE GRID ── */
@@ -1314,10 +2420,11 @@ function animateCd(){
   const wrapper=document.getElementById('cd-disc-wrapper');if(!wrapper)return;
   wrapper.querySelectorAll('.cd-card-item').forEach(card=>{
     const base=parseFloat(card.dataset.baseAngle),r=parseFloat(card.dataset.radius),ri=parseInt(card.dataset.ri);
-    const speed=1-ri*0.12,angle=base+cdAngle*speed*(ri%2===0?1:-1);
+    const dir=ri%2===0?1:-1,angle=base+cdAngle*dir;
     const x=Math.cos(angle)*r,y=Math.sin(angle)*r;
-    card.style.transform=`translate(${x}px,${y}px) translate(-50%,-50%)`;
-    card.style.left='50%';card.style.top='50%';
+    const depth=(Math.sin(angle)+1)/2,scale=0.6+depth*0.55,opacity=0.4+depth*0.6;
+    card.style.transform=`translate(${x}px,${y}px) scale(${scale})`;
+    card.style.opacity=opacity;card.style.zIndex=Math.round(depth*50+1);card.style.filter=`brightness(${0.5+depth*0.6})`;
   });
   cdAnimId=requestAnimationFrame(animateCd);
 }
@@ -1326,9 +2433,8 @@ function animateCd(){
 function buildOrbital(){
   if(orbAnimId){cancelAnimationFrame(orbAnimId);orbAnimId=null;}
   const stage=document.getElementById('orbital-stage');if(!stage)return;
-  stage.querySelectorAll('.orb-planet,.orb-ring-path').forEach(e=>e.remove());
-  const active=getActiveAgents();
-  const orbits=[110,160,210,260,310];
+  stage.querySelectorAll('.orb-ring-path,.orb-planet').forEach(e=>e.remove());
+  const active=getActiveAgents();const orbits=[100,150,200,250,300,350];
   orbits.forEach((r,ri)=>{
     const ring=document.createElement('div');ring.className='orb-ring-path';
     ring.style.cssText=`width:${r*2}px;height:${r*2}px;animation-duration:${10+ri*3}s;animation-direction:${ri%2===0?'normal':'reverse'};`;
@@ -1448,6 +2554,26 @@ function showWheelDetail(agent){
 }
 function hideWheelDetail(){const p=document.getElementById('wheel-detail-panel');if(p)p.classList.remove('active');}
 
+/* ── VIEW MODE ── */
+function getViewMode(){try{return sessionStorage.getItem('wk_view_mode')||'auto';}catch(e){return'auto';}}
+function setViewMode(mode){
+  sessionStorage.setItem('wk_view_mode',mode);applyViewMode();updateViewModeUI();
+  showToast({auto:'🖥️ Auto-responsive mode.',mobile:'📱 Mobile preview active.',desktop:'💻 Desktop preview active.'}[mode]);
+}
+function applyViewMode(){
+  const mode=getViewMode();const vp=document.querySelector('meta[name="viewport"]');
+  if(mode==='mobile'){vp.content='width=390,initial-scale=1.0';document.body.style.maxWidth='390px';document.body.style.margin='0 auto';}
+  else if(mode==='desktop'){vp.content='width=1200,initial-scale=1.0';document.body.style.maxWidth='1200px';document.body.style.margin='0 auto';}
+  else{vp.content='width=device-width,initial-scale=1.0';document.body.style.maxWidth='';document.body.style.margin='';}
+  setTimeout(()=>applyAnimMode(),100);
+}
+function updateViewModeUI(){
+  const mode=getViewMode();
+  document.querySelectorAll('.view-mode-btn').forEach(b=>b.classList.remove('active'));
+  const btn=document.getElementById('view-btn-'+mode);if(btn)btn.classList.add('active');
+}
+function renderAccessibilityTab(){updateAnimModeUI();updateViewModeUI();updateWaModeUI();}
+
 /* ═══════════════════════════════════════════════════════
    NAV HELPERS
 ═══════════════════════════════════════════════════════ */
@@ -1468,6 +2594,36 @@ function showToast(msg,isError=false){
   t.classList.add('show');
   if(toastTimer)clearTimeout(toastTimer);
   toastTimer=setTimeout(()=>t.classList.remove('show'),4000);
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECRET KEY SEQUENCE
+═══════════════════════════════════════════════════════ */
+let keyBuf='',keyBufTimer=null;
+document.addEventListener('keydown',e=>{
+  if(document.activeElement.tagName==='INPUT'||document.activeElement.tagName==='TEXTAREA'||document.activeElement.isContentEditable)return;
+  if(document.getElementById('ceo-overlay').classList.contains('active'))return;
+  if(e.key==='Escape'){
+    if(document.getElementById('detail-page').classList.contains('open')){closeDetailPage();return;}
+    if(document.getElementById('preview-overlay').classList.contains('active')){closePreview();return;}
+    if(document.getElementById('booking-overlay').classList.contains('active')){closeBooking();return;}
+    if(document.getElementById('pin-overlay').classList.contains('active')){closePin();return;}
+    return;
+  }
+  if(e.key==='Enter'&&document.getElementById('pin-overlay').classList.contains('active')){verifyPin();return;}
+  if(e.key.length!==1)return;
+  keyBuf+=e.key;if(keyBuf.length>12)keyBuf=keyBuf.slice(-12);
+  clearTimeout(keyBufTimer);keyBufTimer=setTimeout(()=>{keyBuf='';},1500);
+  if(keyBuf.endsWith(getCeoPin())){keyBuf='';openCeoDash();showToast('⚡ CEO dashboard unlocked');}
+});
+
+/* Mobile hero tap (10 taps) */
+let heroTapCount=0,heroTapTimer=null;
+function handleHeroTap(e){
+  if(!(window.innerWidth<=768||'ontouchstart' in window))return;
+  heroTapCount++;clearTimeout(heroTapTimer);
+  if(heroTapCount>=10){heroTapCount=0;openPin();return;}
+  heroTapTimer=setTimeout(()=>{heroTapCount=0;},3000);
 }
 
 /* Parallax */
@@ -1492,36 +2648,31 @@ function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt
 /* ═══════════════════════════════════════════════════════
    INIT
 ═══════════════════════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', async ()=>{
-  await loadSiteSettings();
+document.addEventListener('DOMContentLoaded',()=>{
+  // Init Supabase first
+  initSupabase();
 
   applyTheme();
   applyLogo();
   applyHeroText();
   renderFounder();
   renderBanner();
+  renderThemePresets();
+  buildCarousel();
   buildAgentList();
   buildFeatures();
   updateWaModeUI();
 
-  if(!isMobile()) { /* buildCarousel + animate handled inside applyAnimMode */ }
+  if(!isMobile()) animateCarousel();
   applyAnimMode();
 
-  document.getElementById('detail-page').style.display='none';
+  // Load saved custom animation if custom mode active
+  if(getAnimMode()==='custom'){
+    const saved=localStorage.getItem('wk_custom_anim');
+    if(saved){const ta=document.getElementById('custom-anim-code');if(ta)ta.value=saved;applyCustomAnimation();}
+  }
 
-  // Keep this tab's view fresh if the admin changes settings while a visitor is browsing
-  try {
-    supaClient
-      .channel('site_settings_changes')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'webkrafta_site_settings' }, payload => {
-        if (payload.new && payload.new.data) {
-          SETTINGS = { ...JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), ...payload.new.data };
-          applyTheme(); applyLogo(); applyHeroText(); renderFounder(); renderBanner();
-          buildAgentList(); populateBookingDropdown(); updateWaModeUI(); applyAnimMode();
-        }
-      })
-      .subscribe();
-  } catch(e) { /* realtime is a nice-to-have; ignore if unavailable */ }
+  document.getElementById('detail-page').style.display='none';
 });
 </script>
 </body>

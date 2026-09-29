@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>WebKrafta Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#04040a;--bg2:#0a0a12;--bg3:#0f0f1a;
+  --pink:#f472b6;--pink-light:#fbbfe4;--pink-dim:rgba(244,114,182,0.12);
+  --cyan:#67e8f9;--fuchsia:#e879f9;
+  --text:#f0e8f4;--text-dim:#9d8aaa;--text-muted:#5a4d65;
+  --border:rgba(244,114,182,0.15);--border-hover:rgba(244,114,182,0.4);
+  --success:#4ade80;--warning:#fbbf24;--danger:#f87171;
+  --font-head:'Syne',sans-serif;--font-body:'Space Grotesk',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --radius:10px;--transition:0.2s ease;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:14px;min-height:100vh}
+
+/* LOGIN */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,rgba(244,114,182,0.08) 0%,transparent 70%)}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:48px 40px;width:100%;max-width:400px;text-align:center}
+.login-logo{font-family:var(--font-head);font-size:28px;font-weight:800;color:var(--pink);margin-bottom:8px;letter-spacing:-0.5px}
+.login-sub{color:var(--text-dim);font-size:13px;margin-bottom:32px}
+.login-box input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;margin-bottom:12px;transition:border var(--transition)}
+.login-box input:focus{border-color:var(--pink)}
+.login-box button{width:100%;background:var(--pink);color:#000;font-family:var(--font-head);font-weight:700;font-size:14px;padding:12px;border:none;border-radius:8px;cursor:pointer;transition:opacity var(--transition)}
+.login-box button:hover{opacity:0.85}
+.login-error{color:var(--danger);font-size:12px;margin-top:8px}
+
+/* LAYOUT */
+#admin-app{display:none;min-height:100vh}
+.admin-layout{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:24px 0;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+.sidebar-logo{font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--pink);padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:16px;letter-spacing:-0.3px}
+.sidebar-logo span{display:block;font-family:var(--font-body);font-size:11px;font-weight:400;color:var(--text-muted);margin-top:2px;letter-spacing:0}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;color:var(--text-dim);font-size:13px;font-weight:500;transition:all var(--transition);border-left:2px solid transparent;position:relative}
+.nav-item:hover{color:var(--text);background:var(--pink-dim)}
+.nav-item.active{color:var(--pink);border-left-color:var(--pink);background:var(--pink-dim)}
+.nav-item .dot{width:6px;height:6px;border-radius:50%;background:var(--danger);position:absolute;right:16px;top:50%;transform:translateY(-50%)}
+.sidebar-bottom{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)}
+.conn-status{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim);margin-bottom:12px}
+.conn-dot{width:8px;height:8px;border-radius:50%;background:var(--success)}
+.conn-dot.red{background:var(--danger)}
+.logout-btn{width:100%;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-family:var(--font-body);font-size:13px;padding:8px;cursor:pointer;transition:all var(--transition)}
+.logout-btn:hover{border-color:var(--danger);color:var(--danger)}
+
+.main-content{padding:32px;overflow-y:auto}
+.page{display:none}
+.page.active{display:block}
+.page-title{font-family:var(--font-head);font-size:26px;font-weight:800;color:var(--pink);margin-bottom:4px;letter-spacing:-0.5px}
+.page-sub{color:var(--text-dim);font-size:13px;margin-bottom:28px}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.card+.card{margin-top:16px}
+
+/* BOOKINGS */
+.booking-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:12px;position:relative;transition:border var(--transition)}
+.booking-item.unseen{border-left:3px solid var(--pink)}
+.booking-item:hover{border-color:var(--border-hover)}
+.booking-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.booking-name{font-weight:600;font-size:15px;color:var(--text)}
+.booking-biz{font-size:12px;color:var(--text-dim);margin-top:2px}
+.booking-badge{font-family:var(--font-mono);font-size:10px;padding:3px 8px;border-radius:20px;font-weight:500}
+.badge-auto{background:rgba(244,114,182,0.15);color:var(--pink)}
+.badge-web{background:rgba(103,232,249,0.12);color:var(--cyan)}
+.badge-pending{background:rgba(251,191,36,0.12);color:var(--warning)}
+.badge-progress{background:rgba(103,232,249,0.12);color:var(--cyan)}
+.badge-done{background:rgba(74,222,128,0.12);color:var(--success)}
+.booking-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;color:var(--text-dim);margin-bottom:12px}
+.booking-meta span strong{color:var(--text)}
+.booking-msg{font-size:13px;color:var(--text-dim);background:var(--bg3);padding:10px 12px;border-radius:6px;margin-bottom:12px;font-style:italic}
+.booking-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{padding:7px 14px;border-radius:6px;font-size:12px;font-family:var(--font-body);font-weight:600;cursor:pointer;border:none;transition:all var(--transition)}
+.btn-pink{background:var(--pink-dim);color:var(--pink);border:1px solid rgba(244,114,182,0.3)}
+.btn-pink:hover{background:var(--pink);color:#000}
+.btn-green{background:rgba(74,222,128,0.1);color:var(--success);border:1px solid rgba(74,222,128,0.25)}
+.btn-green:hover{background:var(--success);color:#000}
+.btn-red{background:rgba(248,113,113,0.1);color:var(--danger);border:1px solid rgba(248,113,113,0.25)}
+.btn-red:hover{background:var(--danger);color:#000}
+.btn-cyan{background:rgba(103,232,249,0.1);color:var(--cyan);border:1px solid rgba(103,232,249,0.25)}
+.btn-cyan:hover{background:var(--cyan);color:#000}
+select.status-sel{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:12px;font-family:var(--font-body);cursor:pointer;outline:none}
+
+/* AGENTS / SERVICES CONTROL */
+.control-grid{display:grid;gap:12px}
+.control-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;transition:border var(--transition)}
+.control-item:hover{border-color:var(--border-hover)}
+.control-item.off{opacity:0.5}
+.ctrl-name{font-weight:600;font-size:14px;color:var(--text)}
+.ctrl-tier{font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:4px}
+.ctrl-right{display:flex;align-items:center;gap:14px}
+.price-edit{display:flex;gap:6px;align-items:center}
+.price-edit input{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 8px;width:100px;color:var(--text);font-family:var(--font-mono);font-size:12px;outline:none;transition:border var(--transition)}
+.price-edit input:focus{border-color:var(--pink)}
+.price-edit .save-btn{background:var(--pink-dim);color:var(--pink);border:1px solid rgba(244,114,182,0.3);padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;transition:all var(--transition)}
+.price-edit .save-btn:hover{background:var(--pink);color:#000}
+.toggle-wrap{position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0}
+.toggle-wrap input{opacity:0;width:0;height:0;position:absolute}
+.toggle-slider{position:absolute;inset:0;background:#2a2035;border-radius:24px;cursor:pointer;transition:background var(--transition)}
+.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:var(--text-muted);bottom:3px;left:3px;transition:all var(--transition)}
+.toggle-wrap input:checked+.toggle-slider{background:rgba(244,114,182,0.2)}
+.toggle-wrap input:checked+.toggle-slider::before{background:var(--pink);transform:translateX(20px)}
+
+/* SETTINGS */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.settings-group{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.settings-group.full{grid-column:1/-1}
+.settings-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:block}
+.settings-title{font-weight:600;font-size:14px;color:var(--pink);margin-bottom:16px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:5px}
+.field input,.field textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:10px 12px;color:var(--text);font-family:var(--font-body);font-size:13px;outline:none;transition:border var(--transition)}
+.field input:focus,.field textarea:focus{border-color:var(--pink)}
+.field textarea{resize:vertical;min-height:80px}
+.save-settings-btn{background:var(--pink);color:#000;border:none;border-radius:8px;padding:10px 20px;font-family:var(--font-head);font-weight:700;font-size:13px;cursor:pointer;transition:opacity var(--transition);margin-top:6px}
+.save-settings-btn:hover{opacity:0.85}
+.banner-toggle-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.banner-toggle-row span{font-size:13px;color:var(--text-dim)}
+
+/* ACCOUNT */
+.account-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;max-width:440px}
+.account-title{font-family:var(--font-head);font-weight:700;font-size:16px;color:var(--text);margin-bottom:16px}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 20px;font-size:13px;color:var(--text);z-index:9999;transform:translateY(80px);opacity:0;transition:all 0.3s ease;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:rgba(74,222,128,0.4);color:var(--success)}
+.toast.error{border-color:rgba(248,113,113,0.4);color:var(--danger)}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:48px 20px;color:var(--text-muted)}
+.empty-icon{font-size:36px;margin-bottom:12px}
+.empty-text{font-size:14px}
+
+/* FILTERS */
+.filter-row{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.filter-btn{padding:6px 14px;border-radius:20px;font-size:12px;font-family:var(--font-body);font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text-dim);transition:all var(--transition)}
+.filter-btn:hover{border-color:var(--border-hover);color:var(--text)}
+.filter-btn.active{background:var(--pink-dim);border-color:rgba(244,114,182,0.4);color:var(--pink)}
+
+@media(max-width:768px){
+  .admin-layout{grid-template-columns:1fr}
+  .sidebar{height:auto;position:relative}
+  .main-content{padding:20px}
+  .settings-grid{grid-template-columns:1fr}
+  .ctrl-right{flex-direction:column;align-items:flex-end}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">WebKrafta</div>
+    <p class="login-sub">Admin Panel — Authorized Access Only</p>
+    <input type="email" id="login-email" placeholder="Admin Email" autocomplete="email"/>
+    <input type="password" id="login-pass" placeholder="Password" autocomplete="current-password"/>
+    <button onclick="adminLogin()">Sign In</button>
+    <div class="login-error" id="login-err"></div>
+  </div>
+</div>
+
+<!-- ADMIN APP -->
+<div id="admin-app">
+  <div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <div class="sidebar-logo">WebKrafta <span>Admin Dashboard</span></div>
+      <div class="nav-item active" onclick="showPage('bookings')" id="nav-bookings">
+        📋 Bookings <span class="dot" id="unseen-dot" style="display:none"></span>
+      </div>
+      <div class="nav-item" onclick="showPage('agents')" id="nav-agents">🤖 AI Agents</div>
+      <div class="nav-item" onclick="showPage('services')" id="nav-services">🌐 Website Services</div>
+      <div class="nav-item" onclick="showPage('settings')" id="nav-settings">⚙️ Site Settings</div>
+      <div class="nav-item" onclick="showPage('account')" id="nav-account">👤 Account</div>
+      <div class="sidebar-bottom">
+        <div class="conn-status">
+          <div class="conn-dot" id="conn-dot"></div>
+          <span id="conn-text">Connected</span>
+        </div>
+        <button class="logout-btn" onclick="adminLogout()">Sign Out</button>
+      </div>
+    </nav>
+
+    <!-- MAIN -->
+    <main class="main-content">
+
+      <!-- BOOKINGS PAGE -->
+      <div class="page active" id="page-bookings">
+        <div class="page-title">Bookings</div>
+        <p class="page-sub">All consultation & service booking requests</p>
+        <div class="filter-row">
+          <button class="filter-btn active" onclick="filterBookings('all',this)">All</button>
+          <button class="filter-btn" onclick="filterBookings('automation',this)">AI Automation</button>
+          <button class="filter-btn" onclick="filterBookings('website',this)">Website</button>
+          <button class="filter-btn" onclick="filterBookings('pending',this)">Pending</button>
+          <button class="filter-btn" onclick="filterBookings('in_progress',this)">In Progress</button>
+          <button class="filter-btn" onclick="filterBookings('completed',this)">Completed</button>
+        </div>
+        <div id="bookings-list"><div class="empty"><div class="empty-icon">📭</div><div class="empty-text">Loading bookings…</div></div></div>
+      </div>
+
+      <!-- AGENTS PAGE -->
+      <div class="page" id="page-agents">
+        <div class="page-title">AI Agents Control</div>
+        <p class="page-sub">Toggle visibility and override prices for each agent tier</p>
+        <div class="control-grid" id="agents-control"></div>
+      </div>
+
+      <!-- SERVICES PAGE -->
+      <div class="page" id="page-services">
+        <div class="page-title">Website Services Control</div>
+        <p class="page-sub">Toggle visibility and override prices for each website package</p>
+        <div class="control-grid" id="services-control"></div>
+      </div>
+
+      <!-- SETTINGS PAGE -->
+      <div class="page" id="page-settings">
+        <div class="page-title">Site Settings</div>
+        <p class="page-sub">Control hero text, banner, WhatsApp, and founder section</p>
+        <div class="settings-grid">
+
+          <div class="settings-group">
+            <div class="settings-title">Hero Section</div>
+            <div class="field">
+              <label>Hero Headline</label>
+              <input type="text" id="s-hero" placeholder="e.g. AI That Works While You Sleep"/>
+            </div>
+            <button class="save-settings-btn" onclick="saveSetting('site/hero','s-hero')">Save Hero</button>
+          </div>
+
+          <div class="settings-group">
+            <div class="settings-title">WhatsApp</div>
+            <div class="field">
+              <label>WhatsApp Number (10 digits)</label>
+              <input type="text" id="s-wa" placeholder="e.g. 9876543210"/>
+            </div>
+            <button class="save-settings-btn" onclick="saveSetting('site/wa','s-wa')">Save Number</button>
+          </div>
+
+          <div class="settings-group full">
+            <div class="settings-title">Promo Banner</div>
+            <div class="banner-toggle-row">
+              <label class="toggle-wrap">
+                <input type="checkbox" id="s-banner-on" onchange="saveBannerToggle()"/>
+                <span class="toggle-slider"></span>
+              </label>
+              <span>Show promo banner on site</span>
+            </div>
+            <div class="field">
+              <label>Banner Text</label>
+              <input type="text" id="s-banner-text" placeholder="e.g. 🎉 Limited time: 20% off all website packages!"/>
+            </div>
+            <button class="save-settings-btn" onclick="saveBannerText()">Save Banner</button>
+          </div>
+
+          <div class="settings-group full">
+            <div class="settings-title">Founder Section</div>
+            <div class="field">
+              <label>Founder Name</label>
+              <input type="text" id="s-founder-name" placeholder="e.g. Ankur"/>
+            </div>
+            <div class="field">
+              <label>Title / Role</label>
+              <input type="text" id="s-founder-title" placeholder="e.g. Founder & Lead AI Engineer"/>
+            </div>
+            <div class="field">
+              <label>Bio</label>
+              <textarea id="s-founder-bio" placeholder="Short bio about the founder…"></textarea>
+            </div>
+            <button class="save-settings-btn" onclick="saveFounder()">Save Founder Info</button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ACCOUNT PAGE -->
+      <div class="page" id="page-account">
+        <div class="page-title">Account</div>
+        <p class="page-sub">Manage admin credentials</p>
+        <div class="account-card">
+          <div class="account-title">Change Password</div>
+          <div class="field">
+            <label>New Password</label>
+            <input type="password" id="new-pass" placeholder="Min 6 characters"/>
+          </div>
+          <div class="field">
+            <label>Confirm Password</label>
+            <input type="password" id="confirm-pass" placeholder="Repeat new password"/>
+          </div>
+          <button class="save-settings-btn" onclick="changePassword()">Update Password</button>
+          <div id="pass-msg" style="margin-top:10px;font-size:12px"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase -->
+<script src="../firebase-config.js"></script>
+<script src="../agents.js"></script>
+<script src="../services.js"></script>
+<script>
+let allBookings = [];
+let currentFilter = 'all';
+
+// ---- AUTH ----
+function adminLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const err   = document.getElementById('login-err');
+  err.textContent = '';
+  auth.signInWithEmailAndPassword(email, pass)
+    .catch(e => { err.textContent = 'Login failed: ' + e.message; });
+}
+
+function adminLogout() {
+  auth.signOut();
+}
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-app').style.display = 'block';
+    initAdmin();
+  } else {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('admin-app').style.display = 'none';
+  }
+});
+
+// ---- INIT ----
+function initAdmin() {
+  checkConnection();
+  loadBookingsLive();
+  loadAgentsControl();
+  loadServicesControl();
+  loadCurrentSettings();
+}
+
+function checkConnection() {
+  db.ref('.info/connected').on('value', snap => {
+    const dot  = document.getElementById('conn-dot');
+    const text = document.getElementById('conn-text');
+    if (snap.val()) { dot.className='conn-dot'; text.textContent='Connected'; }
+    else { dot.className='conn-dot red'; text.textContent='Disconnected'; }
+  });
+}
+
+// ---- NAVIGATION ----
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+}
+
+// ---- BOOKINGS ----
+function loadBookingsLive() {
+  db.ref('bookings').on('value', snap => {
+    allBookings = [];
+    snap.forEach(child => {
+      allBookings.push({ key: child.key, ...child.val() });
+    });
+    allBookings.sort((a,b) => b.timestamp - a.timestamp);
+    renderBookings();
+    const unseen = allBookings.filter(b => !b.seen).length;
+    document.getElementById('unseen-dot').style.display = unseen ? 'block' : 'none';
+  });
+}
+
+function filterBookings(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBookings();
+}
+
+function renderBookings() {
+  const list = document.getElementById('bookings-list');
+  let filtered = allBookings;
+  if (currentFilter === 'automation') filtered = allBookings.filter(b => b.service_type === 'automation');
+  else if (currentFilter === 'website') filtered = allBookings.filter(b => b.service_type === 'website');
+  else if (['pending','in_progress','completed'].includes(currentFilter))
+    filtered = allBookings.filter(b => b.status === currentFilter);
+
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No bookings found</div></div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(b => {
+    const date = new Date(b.timestamp).toLocaleString('en-IN');
+    const typeBadge = b.service_type === 'automation'
+      ? '<span class="booking-badge badge-auto">AI Automation</span>'
+      : '<span class="booking-badge badge-web">Website</span>';
+    const statusClass = b.status === 'pending' ? 'badge-pending' : b.status === 'in_progress' ? 'badge-progress' : 'badge-done';
+    const waNum = (siteSettings.wa || '').replace(/\D/g,'');
+    return `<div class="booking-item ${b.seen ? '' : 'unseen'}" id="bk-${b.key}">
+      <div class="booking-header">
+        <div>
+          <div class="booking-name">${esc(b.name)}</div>
+          <div class="booking-biz">${esc(b.businessName)}</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          ${typeBadge}
+          <span class="booking-badge ${statusClass}">${(b.status||'pending').replace('_',' ')}</span>
+        </div>
+      </div>
+      <div class="booking-meta">
+        <span><strong>📞</strong> ${esc(b.phone)}</span>
+        <span><strong>✉️</strong> ${esc(b.email || '—')}</span>
+        <span><strong>Plan:</strong> ${esc(b.plan)}</span>
+        <span><strong>🕐</strong> ${date}</span>
+      </div>
+      ${b.message ? `<div class="booking-msg">"${esc(b.message)}"</div>` : ''}
+      <div class="booking-actions">
+        ${!b.seen ? `<button class="btn btn-pink" onclick="markSeen('${b.key}')">✓ Mark Seen</button>` : ''}
+        ${waNum ? `<button class="btn btn-green" onclick="waReply('${waNum}','${esc(b.phone)}','${esc(b.name)}')">WhatsApp</button>` : ''}
+        <select class="status-sel" onchange="updateStatus('${b.key}',this.value)">
+          <option value="pending" ${b.status==='pending'?'selected':''}>Pending</option>
+          <option value="in_progress" ${b.status==='in_progress'?'selected':''}>In Progress</option>
+          <option value="completed" ${b.status==='completed'?'selected':''}>Completed</option>
+        </select>
+        <button class="btn btn-red" onclick="deleteBooking('${b.key}')">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function markSeen(key) {
+  db.ref('bookings/'+key+'/seen').set(true);
+}
+
+function waReply(adminWa, clientPhone, clientName) {
+  const msg = encodeURIComponent(`Hi ${clientName}, thank you for your enquiry with WebKrafta! 🙏 We'll get back to you shortly.`);
+  window.open(`https://wa.me/91${clientPhone}?text=${msg}`, '_blank');
+}
+
+function updateStatus(key, status) {
+  db.ref('bookings/'+key+'/status').set(status).then(() => toast('Status updated','success'));
+}
+
+function deleteBooking(key) {
+  if (!confirm('Delete this booking permanently?')) return;
+  db.ref('bookings/'+key).remove().then(() => toast('Booking deleted','success'));
+}
+
+// ---- AGENTS CONTROL ----
+function loadAgentsControl() {
+  db.ref('settings/agents').once('value').then(snap => {
+    const data = snap.val() || {};
+    const vis    = data.visibility || {};
+    const prices = data.prices     || {};
+    const grid = document.getElementById('agents-control');
+    grid.innerHTML = AGENTS.map(a => {
+      const isOn = vis[a.id] !== false;
+      const pSetup = prices[a.id]?.setup   || a.setup;
+      const pMonth = prices[a.id]?.monthly || a.monthly;
+      return `<div class="control-item ${isOn?'':'off'}" id="ctrl-agent-${a.id}">
+        <div>
+          <div class="ctrl-tier">${a.tier}</div>
+          <div class="ctrl-name">${esc(a.name)}</div>
+          <div class="price-edit" style="margin-top:8px">
+            <input type="text" id="ap-setup-${a.id}" value="${esc(pSetup)}" placeholder="Setup"/>
+            <input type="text" id="ap-month-${a.id}" value="${esc(pMonth)}" placeholder="Monthly"/>
+            <button class="save-btn" onclick="saveAgentPrice(${a.id})">Save</button>
+          </div>
+        </div>
+        <label class="toggle-wrap">
+          <input type="checkbox" ${isOn?'checked':''} onchange="toggleAgent(${a.id},this.checked)"/>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>`;
+    }).join('');
+  });
+}
+
+function toggleAgent(id, on) {
+  db.ref('settings/agents/visibility/'+id).set(on).then(() => {
+    const el = document.getElementById('ctrl-agent-'+id);
+    if (el) el.classList.toggle('off', !on);
+    toast(`Agent ${on?'enabled':'disabled'}`, on?'success':'');
+  });
+}
+
+function saveAgentPrice(id) {
+  const setup = document.getElementById('ap-setup-'+id).value.trim();
+  const month = document.getElementById('ap-month-'+id).value.trim();
+  db.ref('settings/agents/prices/'+id).set({ setup, monthly: month })
+    .then(() => toast('Price saved','success'));
+}
+
+// ---- SERVICES CONTROL ----
+function loadServicesControl() {
+  db.ref('settings/websites').once('value').then(snap => {
+    const data = snap.val() || {};
+    const vis    = data.visibility || {};
+    const prices = data.prices     || {};
+    const grid = document.getElementById('services-control');
+    grid.innerHTML = WEBSITE_SERVICES.map(s => {
+      const isOn = vis[s.id] !== false;
+      const pSetup = prices[s.id]?.setup   || s.setup;
+      const pMonth = prices[s.id]?.monthly || s.monthly;
+      return `<div class="control-item ${isOn?'':'off'}" id="ctrl-svc-${s.id}">
+        <div>
+          <div class="ctrl-tier">${s.category}</div>
+          <div class="ctrl-name">${esc(s.name)}</div>
+          <div class="price-edit" style="margin-top:8px">
+            <input type="text" id="sp-setup-${s.id}" value="${esc(pSetup)}" placeholder="Setup"/>
+            <input type="text" id="sp-month-${s.id}" value="${esc(pMonth)}" placeholder="Monthly"/>
+            <button class="save-btn" onclick="saveServicePrice('${s.id}')">Save</button>
+          </div>
+        </div>
+        <label class="toggle-wrap">
+          <input type="checkbox" ${isOn?'checked':''} onchange="toggleService('${s.id}',this.checked)"/>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>`;
+    }).join('');
+  });
+}
+
+function toggleService(id, on) {
+  db.ref('settings/websites/visibility/'+id).set(on).then(() => {
+    const el = document.getElementById('ctrl-svc-'+id);
+    if (el) el.classList.toggle('off', !on);
+    toast(`Service ${on?'enabled':'disabled'}`, on?'success':'');
+  });
+}
+
+function saveServicePrice(id) {
+  const setup = document.getElementById('sp-setup-'+id).value.trim();
+  const month = document.getElementById('sp-month-'+id).value.trim();
+  db.ref('settings/websites/prices/'+id).set({ setup, monthly: month })
+    .then(() => toast('Price saved','success'));
+}
+
+// ---- SITE SETTINGS ----
+function loadCurrentSettings() {
+  db.ref('settings/site').once('value').then(snap => {
+    const d = snap.val() || {};
+    if (d.hero) document.getElementById('s-hero').value = d.hero;
+    if (d.wa)   document.getElementById('s-wa').value   = d.wa;
+    if (d.banner) {
+      document.getElementById('s-banner-on').checked   = d.banner.on || false;
+      document.getElementById('s-banner-text').value   = d.banner.text || '';
+    }
+    if (d.founder) {
+      document.getElementById('s-founder-name').value  = d.founder.name  || '';
+      document.getElementById('s-founder-title').value = d.founder.title || '';
+      document.getElementById('s-founder-bio').value   = d.founder.bio   || '';
+    }
+  });
+}
+
+function saveSetting(path, inputId) {
+  const val = document.getElementById(inputId).value.trim();
+  db.ref('settings/'+path).set(val).then(() => toast('Saved','success'));
+}
+
+function saveBannerToggle() {
+  const on = document.getElementById('s-banner-on').checked;
+  db.ref('settings/site/banner/on').set(on).then(() => toast('Banner '+(on?'enabled':'hidden'),'success'));
+}
+
+function saveBannerText() {
+  const text = document.getElementById('s-banner-text').value.trim();
+  db.ref('settings/site/banner/text').set(text).then(() => toast('Banner text saved','success'));
+}
+
+function saveFounder() {
+  const name  = document.getElementById('s-founder-name').value.trim();
+  const title = document.getElementById('s-founder-title').value.trim();
+  const bio   = document.getElementById('s-founder-bio').value.trim();
+  db.ref('settings/site/founder').set({ name, title, bio })
+    .then(() => toast('Founder info saved','success'));
+}
+
+// ---- ACCOUNT ----
+function changePassword() {
+  const np = document.getElementById('new-pass').value;
+  const cp = document.getElementById('confirm-pass').value;
+  const msg = document.getElementById('pass-msg');
+  if (np.length < 6) { msg.style.color='var(--danger)'; msg.textContent='Min 6 characters.'; return; }
+  if (np !== cp)      { msg.style.color='var(--danger)'; msg.textContent='Passwords do not match.'; return; }
+  auth.currentUser.updatePassword(np)
+    .then(() => { msg.style.color='var(--success)'; msg.textContent='Password updated!'; })
+    .catch(e  => { msg.style.color='var(--danger)'; msg.textContent=e.message; });
+}
+
+// ---- UTILS ----
+function esc(str) {
+  if (!str && str !== 0) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+let toastTimer;
+function toast(msg, type='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>

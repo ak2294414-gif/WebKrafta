@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebKrafta — Professional AI Agents Agency & Web Development</title>
+  <meta name="description" content="Custom AI automation agents & high-converting professional websites for modern businesses. Built by Ankur.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            bg: '#060612',
+            violet: { DEFAULT: '#7c3aed', light: '#a855f7' },
+            cyan: '#06b6d4',
+            amber: '#f59e0b',
+            emerald: '#10b981',
+            rose: '#f43f5e'
+          },
+          fontFamily: {
+            heading: ['Syne', 'sans-serif'],
+            body: ['Space Grotesk', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="agents.js"></script>
+  <script src="services.js"></script>
+  <style>
+    .glass-nav {
+      background: rgba(6, 6, 18, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .carousel-container {
+      perspective: 1200px;
+    }
+    .carousel-track {
+      transform-style: preserve-3d;
+      transition: transform 0.5s cubic-bezier(0.1, 0.7, 0.1, 1);
+    }
+  </style>
+</head>
+<body class="bg-[#060612] text-slate-100 font-body selection:bg-violet/30 selection:text-white antialiased">
+
+  <!-- 2. Promo Banner -->
+  <div id="promo-banner" class="bg-gradient-to-r from-violet via-cyan to-violet text-white text-xs font-mono py-2.5 px-4 text-center font-medium relative z-50 flex items-center justify-center gap-2 hidden">
+    <span id="banner-text">⚡ Special Launch Offer: Get 20% off all AI Automation Agents this week!</span>
+    <button onclick="dismissBanner()" class="ml-4 hover:opacity-75 font-bold px-1.5 py-0.5 bg-black/20 rounded">✕</button>
+  </div>
+
+  <!-- 1. Nav -->
+  <nav class="glass-nav border-b border-slate-800/60 sticky top-0 z-40 transition-all">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet to-cyan flex items-center justify-center font-heading font-extrabold text-xl text-white shadow-lg shadow-violet/30 group-hover:scale-105 transition-transform">W</div>
+        <div class="flex flex-col">
+          <span class="font-heading font-extrabold text-xl tracking-tight text-white">WebKrafta</span>
+          <span class="text-[10px] font-mono text-cyan tracking-widest uppercase">AI Agency & Web</span>
+        </div>
+      </a>
+
+      <div class="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-300">
+        <a href="#services-section" class="hover:text-white transition-colors">Solutions</a>
+        <a href="#features" class="hover:text-white transition-colors">Why WebKrafta</a>
+        <a href="#pricing" class="hover:text-white transition-colors">Pricing</a>
+        <a href="#founder" class="hover:text-white transition-colors">Founder</a>
+        <a href="#faq" class="hover:text-white transition-colors">FAQ</a>
+      </div>
+
+      <div class="hidden lg:flex items-center gap-4">
+        <a href="admin/index.html" class="text-xs font-mono text-slate-400 hover:text-white transition-colors px-3 py-2">Admin</a>
+        <button onclick="openBooking()" class="px-5 py-2.5 bg-gradient-to-r from-violet to-cyan text-white text-sm font-semibold rounded-xl shadow-lg shadow-violet/25 hover:opacity-95 transition-all hover:scale-[1.02] active:scale-[0.98]">Book Consultation</button>
+      </div>
+
+      <button onclick="toggleMobileNav()" class="lg:hidden p-2 text-slate-300 hover:text-white">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+      </button>
+    </div>
+
+    <!-- Mobile Nav Menu -->
+    <div id="mobile-nav" class="lg:hidden hidden bg-slate-950/95 border-b border-slate-800 p-6 space-y-4">
+      <a href="#services-section" onclick="toggleMobileNav()" class="block text-slate-300 hover:text-white font-medium">Solutions</a>
+      <a href="#features" onclick="toggleMobileNav()" class="block text-slate-300 hover:text-white font-medium">Why WebKrafta</a>
+      <a href="#pricing" onclick="toggleMobileNav()" class="block text-slate-300 hover:text-white font-medium">Pricing</a>
+      <a href="#founder" onclick="toggleMobileNav()" class="block text-slate-300 hover:text-white font-medium">Founder</a>
+      <a href="#faq" onclick="toggleMobileNav()" class="block text-slate-300 hover:text-white font-medium">FAQ</a>
+      <a href="admin/index.html" class="block text-slate-400 hover:text-white font-mono text-xs">Admin Panel</a>
+      <button onclick="toggleMobileNav(); openBooking();" class="w-full py-3 bg-gradient-to-r from-violet to-cyan text-white font-semibold rounded-xl shadow-lg">Book Consultation</button>
+    </div>
+  </nav>
+
+  <!-- 3. Hero Section -->
+  <header class="relative pt-24 pb-20 overflow-hidden">
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-violet/15 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-cyan/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto px-6 relative z-10 text-center max-w-4xl">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet/10 border border-violet/20 text-violet-light text-xs font-mono mb-8 animate-pulse">
+        <span class="w-2 h-2 rounded-full bg-violet"></span>
+        <span>Next-Gen AI Automation & Professional Web Development</span>
+      </div>
+
+      <h1 id="hero-headline" class="font-heading text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white leading-[1.1] mb-6">
+        Deploy Autonomous AI Agents. Build High-Converting Websites.
+      </h1>
+
+      <p class="text-base sm:text-xl text-slate-300 font-normal max-w-2xl mx-auto mb-10 leading-relaxed">
+        We architect custom AI automation systems 20% below Indian market rates, paired with lightning-fast professional websites designed to scale your business.
+      </p>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+        <button onclick="openBooking()" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-violet to-cyan text-white font-semibold rounded-xl shadow-xl shadow-violet/30 hover:scale-105 transition-all">Explore AI Agents & Plans</button>
+        <a href="#services-section" class="w-full sm:w-auto px-8 py-4 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 font-semibold rounded-xl transition-all">View 20 AI Tiers</a>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 pt-10 border-t border-slate-800/80 text-left">
+        <div>
+          <div class="font-heading text-3xl font-extrabold text-white">20 Tiers</div>
+          <div class="text-xs text-slate-400 font-mono mt-1">Autonomous AI Agents</div>
+        </div>
+        <div>
+          <div class="font-heading text-3xl font-extrabold text-white">12 Plans</div>
+          <div class="text-xs text-slate-400 font-mono mt-1">Professional Web Services</div>
+        </div>
+        <div>
+          <div class="font-heading text-3xl font-extrabold text-white">20% Off</div>
+          <div class="text-xs text-slate-400 font-mono mt-1">Below Market Pricing</div>
+        </div>
+        <div>
+          <div class="font-heading text-3xl font-extrabold text-white">24/7</div>
+          <div class="text-xs text-slate-400 font-mono mt-1">Autonomous Operations</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 4. Service Toggle Section -->
+  <section id="services-section" class="py-20 bg-slate-950/40 border-t border-slate-800/60 relative">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
+        <div>
+          <span class="text-xs font-mono text-cyan uppercase tracking-widest">Dual Service Model</span>
+          <h2 class="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-white mt-1">Choose Your Growth Engine</h2>
+        </div>
+        <!-- Toggle Switch -->
+        <div class="flex items-center p-1.5 bg-slate-900 border border-slate-800 rounded-2xl">
+          <button id="toggle-btn-automation" onclick="switchServiceMode('automation')" class="px-6 py-2.5 rounded-xl text-sm font-semibold transition-all bg-violet text-white shadow-lg shadow-violet/30">AI Automation (20 Tiers)</button>
+          <button id="toggle-btn-website" onclick="switchServiceMode('website')" class="px-6 py-2.5 rounded-xl text-sm font-semibold transition-all text-slate-400 hover:text-white">Website Services (12 Plans)</button>
+        </div>
+      </div>
+
+      <!-- 5. 3D Carousel / Mobile Grid -->
+      <div id="carousel-wrapper" class="py-10 mb-16 overflow-hidden">
+        <div class="carousel-container relative h-[420px] flex items-center justify-center">
+          <div id="carousel-track" class="carousel-track absolute w-full h-full flex items-center justify-center">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </div>
+        <div class="flex items-center justify-center gap-4 mt-6">
+          <button onclick="rotateCarousel(-1)" class="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-white hover:bg-slate-800 transition-colors">←</button>
+          <button onclick="rotateCarousel(1)" class="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-white hover:bg-slate-800 transition-colors">→</button>
+        </div>
+      </div>
+
+      <!-- 6. Agent/Service List -->
+      <div class="space-y-6">
+        <div class="flex items-center justify-between">
+          <h3 id="list-title" class="font-heading text-2xl font-bold text-white">All 20 AI Agent Tiers</h3>
+          <span id="list-count" class="text-xs font-mono text-slate-400">Showing active tiers</span>
+        </div>
+        <div id="main-catalog-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Features Section -->
+  <section id="features" class="py-24 border-t border-slate-800/60 relative">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-xs font-mono text-violet-light uppercase tracking-widest">Why Choose WebKrafta</span>
+        <h2 class="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-white mt-2">Engineered for Maximum Impact</h2>
+        <p class="text-slate-400 text-sm mt-3">We don't just write scripts or build templates. We deploy production-grade AI infrastructure.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="p-8 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-violet/50 transition-all group">
+          <div class="w-12 h-12 rounded-xl bg-violet/20 border border-violet/30 flex items-center justify-center text-violet-light mb-6 font-heading font-bold text-xl">01</div>
+          <h3 class="font-heading font-bold text-xl text-white mb-3">20% Below Market</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Enterprise-grade AI solutions and custom websites priced fairly for Indian and global businesses without compromising quality.</p>
+        </div>
+        <div class="p-8 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-cyan/50 transition-all group">
+          <div class="w-12 h-12 rounded-xl bg-cyan/20 border border-cyan/30 flex items-center justify-center text-cyan mb-6 font-heading font-bold text-xl">02</div>
+          <h3 class="font-heading font-bold text-xl text-white mb-3">Seamless Firebase Sync</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Real-time database integration ensures instant updates, booking tracking, and dynamic pricing management from your admin console.</p>
+        </div>
+        <div class="p-8 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-emerald/50 transition-all group">
+          <div class="w-12 h-12 rounded-xl bg-emerald/20 border border-emerald/30 flex items-center justify-center text-emerald mb-6 font-heading font-bold text-xl">03</div>
+          <h3 class="font-heading font-bold text-xl text-white mb-3">Autonomous Execution</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Our 20 agent tiers handle everything from WhatsApp customer support to voice calls, lead scoring, and automated inventory management.</p>
+        </div>
+        <div class="p-8 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-amber/50 transition-all group">
+          <div class="w-12 h-12 rounded-xl bg-amber/20 border border-amber/30 flex items-center justify-center text-amber mb-6 font-heading font-bold text-xl">04</div>
+          <h3 class="font-heading font-bold text-xl text-white mb-3">Mobile-First Architecture</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Every website service we build is optimized for Core Web Vitals, lightning-fast load times, and flawless mobile responsiveness.</p>
+        </div>
+        <div class="p-8 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-rose/50 transition-all group">
+          <div class="w-12 h-12 rounded-xl bg-rose/20 border border-rose/30 flex items-center justify-center text-rose mb-6 font-heading font-bold text-xl">05</div>
+          <h3 class="font-heading font-bold text-xl text-white mb-3">Dedicated Support</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Post-launch assistance, continuous uptime monitoring, and regular maintenance updates included with every retainer plan.</p>
+        </div>
+        <div class="p-8 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-violet/50 transition-all group">
+          <div class="w-12 h-12 rounded-xl bg-violet/20 border border-violet/30 flex items-center justify-center text-violet-light mb-6 font-heading font-bold text-xl">06</div>
+          <h3 class="font-heading font-bold text-xl text-white mb-3">Direct WhatsApp Integration</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Convert visitors instantly with built-in WhatsApp chat widgets, automated lead routing, and direct booking dispatch.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. Testimonials -->
+  <section class="py-24 bg-slate-950/40 border-t border-slate-800/60">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-xs font-mono text-cyan uppercase tracking-widest">Client Success Stories</span>
+        <h2 class="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-white mt-2">Trusted by Scaling Businesses</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="p-8 rounded-2xl bg-slate-900/60 border border-slate-800/80 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-1 text-amber mb-4">★★★★★</div>
+            <p class="text-slate-300 text-sm leading-relaxed mb-6">"WebKrafta deployed Tier 1 and Tier 13 WhatsApp agents for our E-commerce brand. Our customer support response time dropped from hours to seconds!"</p>
+          </div>
+          <div>
+            <div class="font-heading font-bold text-white text-sm">Rahul Sharma</div>
+            <div class="text-xs text-slate-400 font-mono">Founder, D2C Fashion Hub</div>
+          </div>
+        </div>
+
+        <div class="p-8 rounded-2xl bg-slate-900/60 border border-slate-800/80 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-1 text-amber mb-4">★★★★★</div>
+            <p class="text-slate-300 text-sm leading-relaxed mb-6">"Ankur and his team built our custom real estate listing website and voice AI agent in record time. Lead conversions are up 40%."</p>
+          </div>
+          <div>
+            <div class="font-heading font-bold text-white text-sm">Priya Menon</div>
+            <div class="text-xs text-slate-400 font-mono">Director, Metro Realty Corp</div>
+          </div>
+        </div>
+
+        <div class="p-8 rounded-2xl bg-slate-900/60 border border-slate-800/80 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-1 text-amber mb-4">★★★★★</div>
+            <p class="text-slate-300 text-sm leading-relaxed mb-6">"The pricing is unbeatable compared to other agencies, and the Firebase-backed admin panel gives us full control over our workflows."</p>
+          </div>
+          <div>
+            <div class="font-heading font-bold text-white text-sm">Vikram Malhotra</div>
+            <div class="text-xs text-slate-400 font-mono">CEO, FinTech Solutions</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. FAQ Section -->
+  <section id="faq" class="py-24 border-t border-slate-800/60">
+    <div class="max-w-4xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <span class="text-xs font-mono text-violet-light uppercase tracking-widest">Got Questions?</span>
+        <h2 class="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-white mt-2">Frequently Asked Questions</h2>
+      </div>
+
+      <div class="space-y-4">
+        <div class="border border-slate-800 rounded-2xl bg-slate-900/40 overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full p-6 text-left font-heading font-bold text-lg text-white flex items-center justify-between">
+            <span>How does WebKrafta pricing compare to market rates?</span>
+            <span class="text-violet-light font-mono text-xl">+</span>
+          </button>
+          <div class="hidden px-6 pb-6 text-slate-400 text-sm leading-relaxed">
+            All our AI automation tiers and website service plans are priced approximately 20% lower than standard Indian market rates, while delivering superior production quality and dedicated maintenance.
+          </div>
+        </div>
+
+        <div class="border border-slate-800 rounded-2xl bg-slate-900/40 overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full p-6 text-left font-heading font-bold text-lg text-white flex items-center justify-between">
+            <span>How long does it take to deploy an AI agent?</span>
+            <span class="text-violet-light font-mono text-xl">+</span>
+          </button>
+          <div class="hidden px-6 pb-6 text-slate-400 text-sm leading-relaxed">
+            Standard AI agents (like Tier 1 Chat or WhatsApp automation) are deployed within 3 to 5 business days after training on your business data and FAQs.
+          </div>
+        </div>
+
+        <div class="border border-slate-800 rounded-2xl bg-slate-900/40 overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full p-6 text-left font-heading font-bold text-lg text-white flex items-center justify-between">
+            <span>Can we request custom features not listed in the tiers?</span>
+            <span class="text-violet-light font-mono text-xl">+</span>
+          </button>
+          <div class="hidden px-6 pb-6 text-slate-400 text-sm leading-relaxed">
+            Yes! For Tier 12 (Enterprise AI Platform) and Website Service w12 (Custom Web App), we build fully bespoke architectures tailored to your exact specifications.
+          </div>
+        </div>
+
+        <div class="border border-slate-800 rounded-2xl bg-slate-900/40 overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full p-6 text-left font-heading font-bold text-lg text-white flex items-center justify-between">
+            <span>What is included in the monthly retainer/maintenance?</span>
+            <span class="text-violet-light font-mono text-xl">+</span>
+          </button>
+          <div class="hidden px-6 pb-6 text-slate-400 text-sm leading-relaxed">
+            Monthly retainers cover server hosting, SSL renewals, AI model optimization, security patches, regular content updates, and continuous performance analytics reporting.
+          </div>
+        </div>
+
+        <div class="border border-slate-800 rounded-2xl bg-slate-900/40 overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full p-6 text-left font-heading font-bold text-lg text-white flex items-center justify-between">
+            <span>How do I get started with WebKrafta?</span>
+            <span class="text-violet-light font-mono text-xl">+</span>
+          </button>
+          <div class="hidden px-6 pb-6 text-slate-400 text-sm leading-relaxed">
+            Simply click on any "Book Consultation" button, fill out your business details and selected plan, and our team will get in touch with you via phone and WhatsApp within 2 hours.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. Founder/About Section -->
+  <section id="founder" class="py-24 bg-slate-950/40 border-t border-slate-800/60">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <span class="text-xs font-mono text-emerald uppercase tracking-widest">Leadership</span>
+          <h2 id="founder-name-heading" class="font-heading text-3xl sm:text-5xl font-extrabold tracking-tight text-white mt-2 mb-6">Meet Ankur</h2>
+          <p id="founder-bio-text" class="text-slate-300 text-base leading-relaxed mb-6">
+            "We founded WebKrafta with a singular mission: to bridge the gap between complex AI research and practical, high-ROI business automation. Whether you need an autonomous voice agent or a high-converting web presence, our team ensures elite execution at accessible Indian market pricing."
+          </p>
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-violet to-cyan flex items-center justify-center font-heading font-bold text-white text-lg">A</div>
+            <div>
+              <div id="founder-title-text" class="font-heading font-bold text-white">Ankur</div>
+              <div class="text-xs text-slate-400 font-mono">Founder & Principal AI Architect</div>
+            </div>
+          </div>
+        </div>
+        <div class="relative">
+          <div class="absolute inset-0 bg-gradient-to-tr from-violet/20 to-cyan/20 rounded-3xl blur-2xl"></div>
+          <div class="relative p-8 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+              <span class="text-xs font-mono text-slate-400">Direct Contact</span>
+              <span class="text-xs font-mono text-emerald flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald animate-pulse"></span>Available for Consultations</span>
+            </div>
+            <div class="space-y-4">
+              <div class="flex items-center gap-3">
+                <span class="text-violet-light font-mono">Email:</span>
+                <span class="text-slate-200 text-sm">ankur@webkrafta.com</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-cyan font-mono">WhatsApp:</span>
+                <span id="display-wa-num" class="text-slate-200 text-sm">+91 98765 43210</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-emerald font-mono">Location:</span>
+                <span class="text-slate-200 text-sm">New Delhi / Remote (Global)</span>
+              </div>
+            </div>
+            <button onclick="openBooking()" class="w-full py-3.5 bg-gradient-to-r from-violet to-cyan text-white font-semibold rounded-xl shadow-lg">Schedule Direct Call with Ankur</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-16 border-t border-slate-800/80 bg-slate-950">
+    <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+      <div class="space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet to-cyan flex items-center justify-center font-heading font-extrabold text-lg text-white">W</div>
+          <span class="font-heading font-extrabold text-lg text-white">WebKrafta</span>
+        </div>
+        <p class="text-xs text-slate-400 leading-relaxed">Professional AI automation agency and web development studio founded by Ankur.</p>
+      </div>
+      <div>
+        <h4 class="font-heading font-bold text-white text-sm mb-4">Solutions</h4>
+        <ul class="space-y-2.5 text-xs text-slate-400">
+          <li><a href="#services-section" class="hover:text-white transition-colors">AI Automation Agents</a></li>
+          <li><a href="#services-section" class="hover:text-white transition-colors">Website Services</a></li>
+          <li><a href="#pricing" class="hover:text-white transition-colors">Pricing & Comparison</a></li>
+          <li><a href="#features" class="hover:text-white transition-colors">Why Choose Us</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-heading font-bold text-white text-sm mb-4">Company</h4>
+        <ul class="space-y-2.5 text-xs text-slate-400">
+          <li><a href="#founder" class="hover:text-white transition-colors">About Founder (Ankur)</a></li>
+          <li><a href="#faq" class="hover:text-white transition-colors">FAQ</a></li>
+          <li><a href="admin/index.html" class="hover:text-white transition-colors">Admin Portal</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-heading font-bold text-white text-sm mb-4">Connect</h4>
+        <p class="text-xs text-slate-400 mb-4">Ready to automate your workflow? Book your consultation today.</p>
+        <button onclick="openBooking()" class="px-4 py-2 bg-violet/20 hover:bg-violet/30 border border-violet/30 text-violet-light rounded-xl text-xs font-mono transition-colors">Book Now</button>
+      </div>
+    </div>
+    <div class="max-w-7xl mx-auto px-6 pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 font-mono">
+      <div>© 2026 WebKrafta. All rights reserved. Founded by Ankur.</div>
+      <div class="flex items-center gap-6 mt-4 sm:mt-0">
+        <a href="#" class="hover:text-slate-400">Privacy Policy</a>
+        <a href="#" class="hover:text-slate-400">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 12. Booking Form Modal -->
+  <div id="booking-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 hidden">
+    <div class="w-full max-w-lg bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeBooking()" class="absolute top-6 right-6 text-slate-400 hover:text-white font-bold text-lg">✕</button>
+      
+      <div class="mb-6">
+        <span class="text-xs font-mono text-violet-light uppercase tracking-widest">Secure Consultation</span>
+        <h3 class="font-heading text-2xl font-bold text-white mt-1">Book Your AI or Web Solution</h3>
+        <p class="text-xs text-slate-400 mt-1">Fill out the details below and our team will connect with you shortly.</p>
+      </div>
+
+      <form id="booking-form" onsubmit="submitBooking(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-1">Your Name*</label>
+          <input type="text" id="booking-name" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-violet" placeholder="Rahul Sharma">
+        </div>
+        <div>
+          <label class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-1">Business Name*</label>
+          <input type="text" id="booking-business" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-violet" placeholder="Sharma Enterprises">
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-1">10-Digit Mobile*</label>
+            <input type="tel" id="booking-phone" required pattern="[0-9]{10}" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-violet" placeholder="9876543210">
+            <p id="phone-error" class="text-[10px] text-rose mt-1 hidden font-mono">Enter a valid 10-digit Indian mobile number</p>
+          </div>
+          <div>
+            <label class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-1">Email (Optional)</label>
+            <input type="email" id="booking-email" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-violet" placeholder="rahul@sharma.com">
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-1">Service Type*</label>
+            <select id="booking-service-type" onchange="updateBookingPlanDropdown()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-violet">
+              <option value="automation">AI Automation Agent</option>
+              <option value="website">Website Service</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-1">Select Plan*</label>
+            <select id="booking-plan" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-violet">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-1">Message / Specific Requirements</label>
+          <textarea id="booking-message" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-violet" placeholder="Tell us about your automation or website needs..."></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-4 bg-gradient-to-r from-violet to-cyan text-white font-semibold rounded-xl shadow-lg shadow-violet/30 hover:opacity-95 transition-all">Submit Booking Request</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div id="detail-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 hidden">
+    <div id="detail-modal-content" class="w-full max-w-2xl bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <!-- Dynamically populated -->
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 border border-slate-800 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-mono text-xs">
+    <span>⚡</span>
+    <span id="toast-msg">Booking submitted successfully!</span>
+  </div>
+
+  <!-- Core JavaScript -->
+  <script>
+    let serviceMode = 'automation'; // 'automation' or 'website'
+    let activeAgentVisibility = {};
+    let activeAgentPrices = {};
+    let activeWebsiteVisibility = {};
+    let activeWebsitePrices = {};
+    let carouselAngle = 0;
+
+    // Firebase Data Listeners
+    db.ref('settings/site').on('value', snapshot => {
+      const s = snapshot.val() || {};
+      if (s.banner) {
+        document.getElementById('banner-text').textContent = s.banner;
+        document.getElementById('promo-banner').classList.remove('hidden');
+      } else {
+        document.getElementById('promo-banner').classList.add('hidden');
+      }
+      if (s.hero) {
+        document.getElementById('hero-headline').textContent = s.hero;
+      }
+      if (s.wa) {
+        document.getElementById('display-wa-num').textContent = '+' + s.wa.replace(/(\d{2})(\d{5})(\d{5})/, '$1 $2 $3');
+      }
+      if (s.founder) {
+        if (s.founder.name) document.getElementById('founder-name-heading').textContent = `Meet ${s.founder.name}`;
+        if (s.founder.title) document.getElementById('founder-title-text').textContent = s.founder.name;
+        if (s.founder.bio) document.getElementById('founder-bio-text').textContent = `"${s.founder.bio}"`;
+      }
+    });
+
+    db.ref('settings/agents').on('value', snapshot => {
+      const data = snapshot.val() || {};
+      activeAgentVisibility = data.visibility || {};
+      activeAgentPrices = data.prices || {};
+      renderCurrentCatalog();
+      buildCarousel();
+    });
+
+    db.ref('settings/websites').on('value', snapshot => {
+      const data = snapshot.val() || {};
+      activeWebsiteVisibility = data.visibility || {};
+      activeWebsitePrices = data.prices || {};
+      if (serviceMode === 'website') {
+        renderCurrentCatalog();
+      }
+    });
+
+    function dismissBanner() {
+      document.getElementById('promo-banner').classList.add('hidden');
+    }
+
+    function toggleMobileNav() {
+      const nav = document.getElementById('mobile-nav');
+      nav.classList.toggle('hidden');
+    }
+
+    function switchServiceMode(mode) {
+      serviceMode = mode;
+      const btnAuto = document.getElementById('toggle-btn-automation');
+      const btnWeb = document.getElementById('toggle-btn-website');
+      const carouselWrap = document.getElementById('carousel-wrapper');
+
+      if (mode === 'automation') {
+        btnAuto.className = "px-6 py-2.5 rounded-xl text-sm font-semibold transition-all bg-violet text-white shadow-lg shadow-violet/30";
+        btnWeb.className = "px-6 py-2.5 rounded-xl text-sm font-semibold transition-all text-slate-400 hover:text-white";
+        carouselWrap.classList.remove('hidden');
+      } else {
+        btnWeb.className = "px-6 py-2.5 rounded-xl text-sm font-semibold transition-all bg-violet text-white shadow-lg shadow-violet/30";
+        btnAuto.className = "px-6 py-2.5 rounded-xl text-sm font-semibold transition-all text-slate-400 hover:text-white";
+        carouselWrap.classList.add('hidden');
+      }
+      renderCurrentCatalog();
+    }
+
+    // Carousel Build & Animation
+    function buildCarousel() {
+      const track = document.getElementById('carousel-track');
+      const visibleAgents = AGENTS.filter(a => activeAgentVisibility[a.id] !== false);
+      let html = '';
+      const count = visibleAgents.length;
+      const radius = 380;
+
+      visibleAgents.forEach((a, i) => {
+        const theta = (i / count) * 2 * Math.PI;
+        const x = Math.sin(theta) * radius;
+        const z = Math.cos(theta) * radius - radius;
+        const setup = activeAgentPrices[a.id]?.setup || a.setup;
+        const monthly = activeAgentPrices[a.id]?.monthly || a.monthly;
+
+        html += `
+          <div class="absolute w-80 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl transition-all duration-500 cursor-pointer hover:border-violet"
+               style="transform: translate3d(${x}px, 0, ${z}px);"
+               onclick="openDetailPage('agent', ${a.id})">
+            <div class="flex items-center justify-between mb-4">
+              <span class="px-2.5 py-1 rounded-full text-xs font-mono" style="background:${a.color}20; color:${a.color}">${a.tier}</span>
+              <span class="text-[10px] font-mono text-slate-400">vs market: ${a.marketSetup}</span>
+            </div>
+            <h3 class="font-heading font-bold text-lg text-white mb-2">${a.name}</h3>
+            <p class="text-xs text-slate-400 line-clamp-2 mb-4">${a.description}</p>
+            <div class="flex items-center justify-between pt-4 border-t border-slate-800 text-xs font-mono">
+              <div>Setup: <strong class="text-white">${setup}</strong></div>
+              <div>Mo: <strong class="text-white">${monthly}</strong></div>
+            </div>
+          </div>
+        `;
+      });
+      track.innerHTML = html;
+      updateCarouselPositions();
+    }
+
+    function rotateCarousel(dir) {
+      carouselAngle += dir * (360 / AGENTS.filter(a => activeAgentVisibility[a.id] !== false).length);
+      updateCarouselPositions();
+    }
+
+    function updateCarouselPositions() {
+      const track = document.getElementById('carousel-track');
+      if (track) {
+        track.style.transform = `rotateY(${carouselAngle}deg)`;
+      }
+    }
+
+    // Catalog List Rendering
+    function renderCurrentCatalog() {
+      const container = document.getElementById('main-catalog-grid');
+      const titleEl = document.getElementById('list-title');
+      const countEl = document.getElementById('list-count');
+
+      if (serviceMode === 'automation') {
+        titleEl.textContent = "All Active AI Agent Tiers";
+        const visibleAgents = AGENTS.filter(a => activeAgentVisibility[a.id] !== false);
+        countEl.textContent = `Showing ${visibleAgents.length} active tiers`;
+        
+        let html = '';
+        visibleAgents.forEach((a, index) => {
+          const setup = activeAgentPrices[a.id]?.setup || a.setup;
+          const monthly = activeAgentPrices[a.id]?.monthly || a.monthly;
+
+          html += `
+            <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-violet/50 transition-all flex flex-col justify-between group">
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <span class="px-2.5 py-1 rounded-full text-xs font-mono" style="background:${a.color}20; color:${a.color}">Tier ${index + 1}</span>
+                  <span class="text-[10px] font-mono text-slate-400 bg-slate-950 px-2 py-1 rounded">Market: ${a.marketSetup}</span>
+                </div>
+                <h3 class="font-heading font-bold text-xl text-white mb-2 group-hover:text-violet-light transition-colors">${a.name}</h3>
+                <p class="text-slate-400 text-xs leading-relaxed mb-4">${a.description}</p>
+                <div class="flex flex-wrap gap-1.5 mb-6">
+                  ${a.tags.slice(0,3).map(t => `<span class="text-[10px] font-mono px-2 py-0.5 bg-slate-950 border border-slate-800 text-slate-300 rounded">${t}</span>`).join('')}
+                </div>
+              </div>
+              <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+                <div>
+                  <div class="text-sm font-bold text-white font-mono">${setup} <span class="text-[10px] font-normal text-slate-400">+ ${monthly}/mo</span></div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="openDetailPage('agent', ${a.id})" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-mono transition-colors">Details</button>
+                  <button onclick="openBookingWithPlan('${a.name}')" class="px-3 py-1.5 bg-violet hover:bg-violet-light text-white rounded-lg text-xs font-mono transition-colors">Book</button>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+
+      } else {
+        titleEl.textContent = "Professional Website Services";
+        const visibleServices = WEBSITE_SERVICES.filter(s => activeWebsiteVisibility[s.id] !== false);
+        countEl.textContent = `Showing ${visibleServices.length} active plans`;
+
+        let html = '';
+        visibleServices.forEach(s => {
+          const setup = activeWebsitePrices[s.id]?.setup || s.setup;
+          const monthly = activeWebsitePrices[s.id]?.monthly || s.monthly;
+
+          html += `
+            <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-cyan/50 transition-all flex flex-col justify-between group">
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <span class="px-2.5 py-1 rounded-full text-xs font-mono bg-cyan/20 text-cyan">${s.category}</span>
+                  <span class="text-[10px] font-mono text-slate-400 bg-slate-950 px-2 py-1 rounded">${s.pages} • ${s.deliveryDays} Days</span>
+                </div>
+                <h3 class="font-heading font-bold text-xl text-white mb-2 group-hover:text-cyan transition-colors">${s.name}</h3>
+                <p class="text-slate-400 text-xs leading-relaxed mb-4">${s.description}</p>
+                <div class="flex flex-wrap gap-1.5 mb-6">
+                  ${s.tags.slice(0,3).map(t => `<span class="text-[10px] font-mono px-2 py-0.5 bg-slate-950 border border-slate-800 text-slate-300 rounded">${t}</span>`).join('')}
+                </div>
+              </div>
+              <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+                <div>
+                  <div class="text-sm font-bold text-white font-mono">${setup} <span class="text-[10px] font-normal text-slate-400">+ ${monthly}/mo</span></div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="openDetailPage('website', '${s.id}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-mono transition-colors">Details</button>
+                  <button onclick="openBookingWithPlan('${s.name}')" class="px-3 py-1.5 bg-cyan text-slate-950 font-bold hover:opacity-90 rounded-lg text-xs font-mono transition-colors">Book</button>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      }
+    }
+
+    // Detail Modal Logic
+    function openDetailPage(type, id) {
+      const modal = document.getElementById('detail-modal');
+      const content = document.getElementById('detail-modal-content');
+      let html = '';
+
+      if (type === 'agent') {
+        const a = AGENTS.find(item => item.id === id);
+        if (!a) return;
+        const setup = activeAgentPrices[a.id]?.setup || a.setup;
+        const monthly = activeAgentPrices[a.id]?.monthly || a.monthly;
+
+        html = `
+          <button onclick="closeDetailPage()" class="absolute top-6 right-6 text-slate-400 hover:text-white font-bold text-lg">✕</button>
+          <div class="flex items-center gap-3 mb-4">
+            <span class="px-3 py-1 rounded-full text-xs font-mono" style="background:${a.color}20; color:${a.color}">${a.tier}</span>
+            <span class="text-xs font-mono text-slate-400">Market Reference: ${a.marketSetup}</span>
+          </div>
+          <h2 class="font-heading text-2xl font-bold text-white mb-3">${a.name}</h2>
+          <p class="text-slate-300 text-sm leading-relaxed mb-6">${a.description}</p>
+          
+          <div class="space-y-4 mb-6">
+            <h4 class="font-heading font-bold text-white text-sm">What's Included:</h4>
+            <ul class="space-y-2">
+              ${a.includes.map(inc => `<li class="text-xs text-slate-300 flex items-center gap-2"><span class="text-emerald">✓</span> ${inc}</li>`).join('')}
+            </ul>
+          </div>
+
+          <div class="space-y-2 mb-8">
+            <h4 class="font-heading font-bold text-white text-sm">Best For:</h4>
+            <div class="flex flex-wrap gap-2">
+              ${a.bestFor.map(b => `<span class="px-2.5 py-1 bg-slate-950 border border-slate-800 rounded text-xs font-mono text-violet-light">${b}</span>`).join('')}
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-6 border-t border-slate-800">
+            <div>
+              <div class="text-xs font-mono text-slate-400">WebKrafta Pricing</div>
+              <div class="text-lg font-extrabold text-white font-mono">${setup} <span class="text-xs font-normal text-slate-400">+ ${monthly}/mo</span></div>
+            </div>
+            <button onclick="closeDetailPage(); openBookingWithPlan('${a.name}');" class="px-6 py-3 bg-gradient-to-r from-violet to-cyan text-white font-semibold rounded-xl text-xs font-mono">Book This Agent</button>
+          </div>
+        `;
+      } else {
+        const s = WEBSITE_SERVICES.find(item => item.id === id);
+        if (!s) return;
+        const setup = activeWebsitePrices[s.id]?.setup || s.setup;
+        const monthly = activeWebsitePrices[s.id]?.monthly || s.monthly;
+
+        html = `
+          <button onclick="closeDetailPage()" class="absolute top-6 right-6 text-slate-400 hover:text-white font-bold text-lg">✕</button>
+          <div class="flex items-center gap-3 mb-4">
+            <span class="px-3 py-1 rounded-full text-xs font-mono bg-cyan/20 text-cyan">${s.category}</span>
+            <span class="text-xs font-mono text-slate-400">${s.pages} • ${s.deliveryDays} Days Delivery</span>
+          </div>
+          <h2 class="font-heading text-2xl font-bold text-white mb-3">${s.name}</h2>
+          <p class="text-slate-300 text-sm leading-relaxed mb-6">${s.description}</p>
+          
+          <div class="space-y-4 mb-6">
+            <h4 class="font-heading font-bold text-white text-sm">Service Includes:</h4>
+            <ul class="space-y-2">
+              ${s.includes.map(inc => `<li class="text-xs text-slate-300 flex items-center gap-2"><span class="text-cyan">✓</span> ${inc}</li>`).join('')}
+            </ul>
+          </div>
+
+          <div class="space-y-4 mb-8">
+            <h4 class="font-heading font-bold text-white text-sm">Monthly Maintenance:</h4>
+            <ul class="space-y-2">
+              ${s.maintenance.map(m => `<li class="text-xs text-slate-300 flex items-center gap-2"><span class="text-emerald">✓</span> ${m}</li>`).join('')}
+            </ul>
+          </div>
+
+          <div class="flex items-center justify-between pt-6 border-t border-slate-800">
+            <div>
+              <div class="text-xs font-mono text-slate-400">WebKrafta Pricing</div>
+              <div class="text-lg font-extrabold text-white font-mono">${setup} <span class="text-xs font-normal text-slate-400">+ ${monthly}/mo</span></div>
+            </div>
+            <button onclick="closeDetailPage(); openBookingWithPlan('${s.name}');" class="px-6 py-3 bg-cyan text-slate-950 font-bold rounded-xl text-xs font-mono">Book This Plan</button>
+          </div>
+        `;
+      }
+
+      content.innerHTML = html;
+      modal.classList.remove('hidden');
+    }
+
+    function closeDetailPage() {
+      document.getElementById('detail-modal').classList.add('hidden');
+    }
+
+    // Booking Modal Logic
+    function openBooking() {
+      updateBookingPlanDropdown();
+      document.getElementById('booking-modal').classList.remove('hidden');
+    }
+
+    function openBookingWithPlan(planName) {
+      openBooking();
+      const planSelect = document.getElementById('booking-plan');
+      for (let i = 0; i < planSelect.options.length; i++) {
+        if (planSelect.options[i].text === planName || planSelect.options[i].value === planName) {
+          planSelect.selectedIndex = i;
+          break;
+        }
+      }
+    }
+
+    function closeBooking() {
+      document.getElementById('booking-modal').classList.add('hidden');
+    }
+
+    function updateBookingPlanDropdown() {
+      const type = document.getElementById('booking-service-type').value;
+      const planSelect = document.getElementById('booking-plan');
+      let html = '';
+
+      if (type === 'automation') {
+        const visibleAgents = AGENTS.filter(a => activeAgentVisibility[a.id] !== false);
+        visibleAgents.forEach(a => {
+          html += `<option value="${a.name}">${a.tier}: ${a.name}</option>`;
+        });
+      } else {
+        const visibleServices = WEBSITE_SERVICES.filter(s => activeWebsiteVisibility[s.id] !== false);
+        visibleServices.forEach(s => {
+          html += `<option value="${s.name}">${s.category}: ${s.name}</option>`;
+        });
+      }
+      planSelect.innerHTML = html;
+    }
+
+    function submitBooking(e) {
+      e.preventDefault();
+      const name = document.getElementById('booking-name').value;
+      const businessName = document.getElementById('booking-business').value;
+      const phone = document.getElementById('booking-phone').value;
+      const email = document.getElementById('booking-email').value;
+      const service_type = document.getElementById('booking-service-type').value;
+      const plan = document.getElementById('booking-plan').value;
+      const message = document.getElementById('booking-message').value;
+
+      if (!/^[0-9]{10}$/.test(phone)) {
+        document.getElementById('phone-error').classList.remove('hidden');
+        return;
+      }
+      document.getElementById('phone-error').classList.add('hidden');
+
+      const bookingData = {
+        name, businessName, phone, email, service_type, plan, message,
+        timestamp: Date.now(),
+        seen: false,
+        status: 'pending'
+      };
+
+      db.ref('bookings').push(bookingData)
+        .then(() => {
+          closeBooking();
+          showToast('Booking submitted successfully! Ankur & team will contact you soon.');
+          document.getElementById('booking-form').reset();
+        })
+        .catch(err => {
+          showToast(err.message, 'error');
+        });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').textContent = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 4000);
+    }
+
+    // FAQ Accordion
+    function toggleFaq(btn) {
+      const content = btn.nextElementSibling;
+      const symbol = btn.querySelector('span:last-child');
+      content.classList.toggle('hidden');
+      symbol.textContent = content.classList.contains('hidden') ? '+' : '−';
+    }
+  </script>
+</body>
+</html>
